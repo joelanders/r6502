@@ -1,16 +1,22 @@
 module R6502
   class Assembler
 
-    def initialize
+    def initialize(memory)
+      @memory = memory
       @pc = 0x600
+      @labels = {}
     end
 
     def pc
       @pc
     end
 
-    def parse(command)
-      0xea
+    def labels
+      @labels
+    end
+
+    def label_get(label)
+      @labels[label]
     end
 
     def uncomment(line)
@@ -53,8 +59,7 @@ module R6502
     end
 
     # This method got nasty.
-    def asm_line(line)
-      instr = uncomment(line)
+    def asm_instr(instr)
       command = extract_command(instr)
       param = extract_param(instr)
 
@@ -95,5 +100,49 @@ module R6502
       end
     end
 
+    def write_byte(byte)
+      @memory.set(@pc, byte)
+      @pc += 1
+    end
+
+    def process_line(line)     # can have label, cmd, param, cmt
+      instr = uncomment(line)  # strips comment
+      instr = delabel(instr)   # strips label
+      if instr == '' then return end
+      bytes = asm_instr(instr) # convert remainder to machine code
+      bytes.each { |b| write_byte(b) } # pop bytes into memory
+    end
+
+    def delabel(instr)
+      instr = instr.sub(/^\s+/, '') #strip leading whitespace
+      first = instr.split(/\s+/)[0] #get first non-ws substr.
+      # if first word is an instruction, then there's
+      # no label in this instr, so we're done.
+      if ['adc', 'and', 'asl', 'bit', 'bpl', 'bmi',
+          'bvc', 'bvs', 'bcc', 'bcs', 'bne', 'beq',
+          'brk', 'cmp', 'cpx', 'cpy', 'dec', 'eor',
+          'clc', 'sec', 'cli', 'sei', 'clv', 'cld',
+          'sed', 'inc', 'jmp', 'jsr', 'lda', 'ldx',
+          'ldy', 'lsr', 'nop', 'ora', 'tax', 'txa',
+          'dex', 'inx', 'tay', 'tya', 'dey', 'iny',
+          'ror', 'rol', 'rti', 'rts', 'sbc', 'sta',
+          'txs', 'tsx', 'pha', 'pla', 'php', 'plp',
+          'stx', 'sty', 'nil'].include?(first) || first == nil
+        return instr
+      end
+
+      # otherwise, it is a label.
+      first = /\w+/.match(first)[0]
+      new_label(first)
+
+      return instr.sub(/^\S+\s*/, '') # rm label from instr
+    end
+
+    def new_label(name)
+      @labels.member?(name) && (raise 'label already defined')
+      @labels[name] = @pc
+    end
+
   end
 end
+

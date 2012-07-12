@@ -12,5 +12,10 @@ module R6502
     def get_word( addr )
       get(addr) + ( get(addr + 1) << 8 )
     end
+    def get_range( top, bot )
+      bytes = []
+      (top..bot).each { |i| bytes << get(i) }
+      bytes
+    end
   end
 end
