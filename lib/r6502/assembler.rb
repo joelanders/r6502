@@ -4,7 +4,13 @@ module R6502
     def initialize(memory)
       @memory = memory
       @pc = 0x600
+      # @labels holds 'label' => 0xabcd mappings
+      # where the address is what gets subbed for the label
       @labels = {}
+      # @deferred holds 0x0601 => 'main' mappings
+      # where the addr. marks memory we need to fill in 2nd pass
+      # (after we know all the label => addr. mappings)
+      @deferred = {}
     end
 
     def pc
@@ -13,6 +19,10 @@ module R6502
 
     def labels
       @labels
+    end
+
+    def deferred
+      @deferred
     end
 
     def label_get(label)
@@ -24,11 +34,12 @@ module R6502
     end
 
     def extract_command(instr)
+      instr = instr.sub(/^\s*/, '')
       instr.sub(/\s.*/, '').to_sym
     end
 
     def extract_param(instr)
-      instr.sub(/.*\s+/, '')
+      instr.sub(/[a-zA-Z]+\s*/, '').downcase
     end
 
     def addr_mode(param)
@@ -42,6 +53,8 @@ module R6502
       when /\$[0-9a-f]{1,2},y$/
         :zpy
       when /\$[0-9a-f]{3,4}$/
+        :abs
+      when /^[a-z]+/
         :abs
       when /\$[0-9a-f]{3,4},x$/
         :absx
@@ -84,17 +97,25 @@ module R6502
         return bytes
       end
 
-      # Extract hex number from param string.
-      number = /[0-9a-f]{1,4}/.match(param)[0].to_i(16)
+      # Handle label or address / immediate value
+      if param =~ /\$/ # non-labels always have a $
+        # Extract hex number from param string.
+        number = /[0-9a-f]{1,4}/.match(param)[0].to_i(16)
+      else
+        # Store a dummy value and record this location
+        # to be updated in 2nd pass.
+        defer_value(@pc + 1, param)
+        number = 0xffff
+      end
 
       # These instructions take 1 byte.
       if [:imm,  :zp,   :zpx,  :zpy,
           :indx, :indy, :rel].include?(mode)
-        (number < 0xff) || (raise 'number too big')
+        (number <= 0xff) || (raise 'number too big')
         return bytes << number
       # These instructions take 2 bytes.
       elsif [:abs, :absx, :absy, :ind].include?(mode)
-        (number < 0xffff) || (raise 'number too big')
+        (number <= 0xffff) || (raise 'number too big')
         bytes << (number & 0xff) # least-sig. byte
         bytes << (number >> 8)   # most-sig. byte
       end
@@ -106,6 +127,7 @@ module R6502
     end
 
     def process_line(line)     # can have label, cmd, param, cmt
+      line.downcase!
       instr = uncomment(line)  # strips comment
       instr = delabel(instr)   # strips label
       if instr == '' then return end
@@ -141,6 +163,29 @@ module R6502
     def new_label(name)
       @labels.member?(name) && (raise 'label already defined')
       @labels[name] = @pc
+    end
+
+    def defer_value(addr, label)
+      @deferred[addr] = label
+    end
+
+    def process_file(lines)
+      # First pass places machine code and records the locations
+      # of referred-to labels, the values of which we'll need
+      # to write in the second pass.
+      lines.split("\n").each do |line|
+        process_line( line )
+      end
+      # Goes through the saved locations (filled with dummy
+      # values) and writes the real values.
+      @deferred.keys.each do |addr|
+        both_bytes = label_get( @deferred[addr] )
+        low_byte = both_bytes & 0x00ff
+        high_byte = both_bytes >> 8
+        @memory.set( addr, low_byte )
+        @memory.set( addr+1, high_byte )
+      end
+
     end
 
   end

@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+$LOAD_PATH.unshift File.expand_path('../../lib',__FILE__)
+require 'r6502'
+
+@mem = R6502::Memory.new
+@asm = R6502::Assembler.new(@mem)
+
+file = []
+puts "Hello! Enter some 6502 assembly, and an empty line when done."
+until (line = gets.chomp).empty?
+  file << line
+end
+
+@asm.process_file( file.join("\n") )
+
+puts "Now give me the first and last address of the memory"
+puts "that you want me to print out."
+inpt = gets
+first = inpt.split[0].to_i(16)
+second = inpt.split[1].to_i(16)
+@mem.get_range(first, second).each {|b| print ("%02x " % b)}
+print "\n\n"
+
+puts "That looks excellent. Have a good day."
+

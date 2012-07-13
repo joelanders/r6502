@@ -14,6 +14,7 @@ module R6502
 
     it "extracts command part of line" do
       @asm.extract_command('nop').should == :nop
+      @asm.extract_command(' nop').should == :nop
       @asm.extract_command('adc \($44\),y').should == :adc
       @asm.extract_command('asl   $0100').should == :asl
     end
@@ -21,6 +22,7 @@ module R6502
     it "extracts parameter part of line" do
       @asm.extract_param('and $abcd,x').should == '$abcd,x'
       @asm.extract_param('cmd    \($bb,x\)').should == '\($bb,x\)'
+      @asm.extract_param('nop').should == ''
     end
 
     describe "determine addressing mode" do
@@ -43,6 +45,7 @@ module R6502
       it "absolute" do
         @asm.addr_mode('$ffff').should == :abs
         @asm.addr_mode('$eee').should == :abs
+        @asm.addr_mode('loop').should == :abs
       end
       it "absolute, x" do
         @asm.addr_mode('$1000,x').should == :absx
@@ -124,6 +127,11 @@ module R6502
         @asm.pc.should == 0x601
         @mem.get(0x600).should == 0xea
       end
+      it "processes a mixed-case 1-byte instruction" do
+        @asm.process_line('NOp ; comment')
+        @asm.pc.should == 0x601
+        @mem.get(0x600).should == 0xea
+      end
       it "processes a 2-byte instruction" do
         @asm.process_line('lda #$6c')
         @asm.pc.should == 0x602
@@ -141,7 +149,7 @@ module R6502
         @asm.pc.should == 0x604
         @mem.get_range(0x600, 0x603).should == [0xea, 0x0a, 0xa6, 0x55]
       end
-      it "processes instructions with labels" do
+      it "processes instructions with leading labels" do
         @asm.process_line('top: nop')
         @asm.process_line('second: asl')
         @asm.process_line('third ldx $55')
@@ -152,6 +160,12 @@ module R6502
         @asm.label_get('second').should == 0x601
         @asm.label_get('third').should == 0x602
         @asm.label_get('fourth').should == 0x604
+      end
+      it "processes instructions with referenced-to labels" do
+        @asm.process_line('jmp cleanup')
+        @mem.get_range(0x600, 0x602).should == [0x4c, 0xff, 0xff]
+        @asm.deferred.should == {0x601 => 'cleanup'}
+        @asm.pc.should == 0x603
       end
     end
 
@@ -170,6 +184,21 @@ module R6502
         @asm.delabel('loop: nop').should == 'nop'
         @asm.labels.should == {'loop' => 0x600}
         @asm.label_get('loop').should == 0x600
+      end
+    end
+
+    describe "record pending labels" do
+      it "records mem. bytes whose values we don't know yet" do
+        @asm.defer_value(0x601, 'main')
+        @asm.deferred.should == {0x601 => 'main'}
+      end
+    end
+
+    describe "process a file (many lines)" do
+      it "places the machine code and figures out the labels" do
+        @asm.process_file("lda $2000 ;cmt\nloop nop\njmp loop\n")
+        @mem.get_range(0x600, 0x602).should == [0xad, 0x00, 0x20]
+        @mem.get_range(0x603, 0x606).should == [0xea, 0x4c, 0x03, 0x06]
       end
     end
 
