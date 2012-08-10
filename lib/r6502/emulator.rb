@@ -4,5 +4,6 @@ module R6502
     def initialize
       @mem = Memory.new
     end
+
   end
 end
