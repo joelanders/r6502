@@ -22,6 +22,10 @@ module R6502
         (thd_word<<8) + sec_word + @x
       when :absy
         (thd_word<<8) + sec_word + @y
+      when :ind
+        lb = @mem.get( (thd_word<<8) + sec_word )
+        hb = @mem.get( (thd_word<<8) + sec_word + 1 )
+        (hb<<8) + lb
       end
     end
 

@@ -46,6 +46,9 @@ module R6502
       @emu.arg(:absx, 0xef, 0x66).should == 0x66ff
       @emu.y = 0x20
       @emu.arg(:absy, 0xdf, 0x66).should == 0x66ff
+      @emu.mem.set(0x1000, 0x30)
+      @emu.mem.set(0x1001, 0x40)
+      @emu.arg(:ind, 0x00, 0x10).should == 0x4030
     end
   end
 end
