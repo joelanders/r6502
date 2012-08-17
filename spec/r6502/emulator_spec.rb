@@ -49,6 +49,11 @@ module R6502
       @emu.mem.set(0x1000, 0x30)
       @emu.mem.set(0x1001, 0x40)
       @emu.arg(:ind, 0x00, 0x10).should == 0x4030
+      @emu.x = 0x03
+      @emu.mem.set( 0xd0, 0xf0 )
+      @emu.mem.set( 0xd1, 0xd0 )
+      @emu.mem.set( 0xd0f0, 0x34 )
+      @emu.arg(:indx, 0xcd, 0x66).should == 0x34
     end
   end
 end

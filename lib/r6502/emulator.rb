@@ -26,7 +26,11 @@ module R6502
         lb = @mem.get( (thd_word<<8) + sec_word )
         hb = @mem.get( (thd_word<<8) + sec_word + 1 )
         (hb<<8) + lb
-      end
+      when :indx
+        lb = @mem.get( 0xff & (@x + sec_word) )
+        hb = @mem.get( 0xff & (@x + sec_word) + 1 )
+        @mem.get( (hb<<8) + lb )
+    end
     end
 
   end
