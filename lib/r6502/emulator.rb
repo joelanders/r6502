@@ -6,6 +6,8 @@ module R6502
     end
     def arg(mode, sec_word, thd_word)
       case mode
+      when :imp
+          nil
       when :imm
         sec_word
       when :zp
@@ -30,6 +32,11 @@ module R6502
         lb = @mem.get( 0xff & (@x + sec_word) )
         hb = @mem.get( 0xff & (@x + sec_word) + 1 )
         @mem.get( (hb<<8) + lb )
+      when :indy
+        lb = @mem.get( 0xff & sec_word )
+        hb = @mem.get( 0xff & sec_word + 1)
+        addr = (hb<<8) + lb
+        @mem.get( addr + @y )
     end
     end
 
