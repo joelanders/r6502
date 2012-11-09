@@ -20,32 +20,32 @@ module R6502
         0x21 => {:instr => :and, :mode => :indx},
         0x31 => {:instr => :and, :mode => :indy},
     #asl
-        0xa9 => {:instr => :asl, :mode => :imm},
-        0xa9 => {:instr => :asl, :mode => :imm},
-        0xa9 => {:instr => :asl, :mode => :imm},
-        0xa9 => {:instr => :asl, :mode => :imm},
-        0xa9 => {:instr => :asl, :mode => :imm},
+        0x0a => {:instr => :asl, :mode => :acc},
+        0x06 => {:instr => :asl, :mode => :zp},
+        0x16 => {:instr => :asl, :mode => :zpx},
+        0x0e => {:instr => :asl, :mode => :abs},
+        0x1e => {:instr => :asl, :mode => :absx},
     #bit
-        0xa9 => {:instr => :bit, :mode => :imm},
-        0xa9 => {:instr => :bit, :mode => :imm},
+        0x24 => {:instr => :bit, :mode => :zp},
+        0x2c => {:instr => :bit, :mode => :abs},
     #bpl
-        0xa9 => {:instr => :bpl, :mode => :rel},
+        0x10 => {:instr => :bpl, :mode => :rel},
     #bmi
-        0xa9 => {:instr => :bmi, :mode => :rel},
+        0x30 => {:instr => :bmi, :mode => :rel},
     #bvc
-        0xa9 => {:instr => :bvc, :mode => :rel},
+        0x50 => {:instr => :bvc, :mode => :rel},
     #bvs
-        0xa9 => {:instr => :bvs, :mode => :rel},
+        0x70 => {:instr => :bvs, :mode => :rel},
     #bcc
-        0xa9 => {:instr => :bcc, :mode => :rel},
+        0x90 => {:instr => :bcc, :mode => :rel},
     #bcs
-        0xa9 => {:instr => :bcs, :mode => :rel},
+        0xb0 => {:instr => :bcs, :mode => :rel},
     #bne
-        0xa9 => {:instr => :bne, :mode => :rel},
+        0xd0 => {:instr => :bne, :mode => :rel},
     #beq
-        0xa9 => {:instr => :beq, :mode => :rel},
+        0xf0 => {:instr => :beq, :mode => :rel},
     #brk
-        0xa9 => {:instr => :brk, :mode => :imm},
+        0x00 => {:instr => :brk, :mode => :imp},
     #cmp
         0xc9 => {:instr => :cmp, :mode => :imm},
         0xc5 => {:instr => :cmp, :mode => :zp},
