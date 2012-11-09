@@ -24,6 +24,10 @@ module R6502
       @emu.mem.get(0xfffe).should == 0x00
       @emu.mem.get(0xffff).should == 0x01
     end
+    it "Has cpu" do
+      @emu = Emulator.new
+      @emu.cpu.and(0x06, 0x03).should == 0x02
+    end
     it "Finds instruction and mode from opcode" do
       @emu = Emulator.new
       @emu.instr_mode(0xa9).should == {:instr => :lda, :mode => :imm}
