@@ -20,6 +20,7 @@ module R6502
       @cpu.instr_mode(0x69).should == {:instr => :adc, :mode => :imm}
       @cpu.instr_mode(0x65).should == {:instr => :adc, :mode => :zp}
       @cpu.instr_mode(0x75).should == {:instr => :adc, :mode => :zpx}
+      @cpu.instr_mode(0x0a).should == {:instr => :asl, :mode => :acc}
     end
     it "Finds the argument to the instruction" do
       # IMPLIED
