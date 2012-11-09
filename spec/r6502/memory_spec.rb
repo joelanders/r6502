@@ -21,6 +21,10 @@ module R6502
       memory.set(0xf0, 0x01)
       memory.set(0xf1, 0x02)
       memory.get_word(0xf0).should == 0x0201
+
+      memory.set(0xfffc, 0x00)
+      memory.set(0xfffd, 0x20)
+      memory.get_word(0xfffc).should == 0x2000
     end
     it "can retrieve a range of bytes" do
       memory = Memory.new

@@ -3,7 +3,7 @@ module R6502
     attr_accessor :pc, :s, :p, :a, :x, :y, :mem, :cpu
     def initialize
       @mem = Memory.new
-      @cpu = Cpu.new
+      @cpu = Cpu.new(@mem)
     end
     def arg(mode, sec_word, thd_word)
       case mode

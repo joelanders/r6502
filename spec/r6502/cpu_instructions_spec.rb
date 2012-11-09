@@ -1,9 +1,10 @@
 require 'spec_helper'
 
 module R6502
-  describe Cpu do
+  describe "Cpu Instructions" do
     before(:each) do
-      @cpu = Cpu.new
+      @mem = Memory.new
+      @cpu = Cpu.new(@mem)
     end
     # TODO
     it "sets cpu flags" do
