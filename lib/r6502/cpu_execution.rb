@@ -59,5 +59,35 @@ module R6502
         @mem.get( addr + @y )
       end
     end
+    def inc_pc_by_mode(mode)
+      case mode
+      when :imp
+        @pc += 1
+      when :acc
+        @pc += 1
+      when :imm
+        @pc += 2
+      when :zp
+        @pc += 2
+      when :zpx
+        @pc += 2
+      when :zpy
+        @pc += 2
+      when :abs
+        @pc += 3
+      when :absx
+        @pc += 3
+      when :absy
+        @pc += 3
+      when :indx
+        @pc += 2
+      when :indy
+        @pc += 2
+      when :rel
+        @pc += 2
+      when :ind #only used by jmp, which explicitly sets the pc,
+        @pc += 3 #so hopefully this is never used here.
+      end
+    end
   end
 end

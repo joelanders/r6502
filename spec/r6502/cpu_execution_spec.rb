@@ -78,5 +78,43 @@ module R6502
       @cpu.step
       @cpu.pc.should == 0x2001
     end
+    it "incr.s PC by correct amount for most instructions" do
+      @cpu.pc = 0x1000
+      @cpu.inc_pc_by_mode(:imp)
+      @cpu.pc.should == 0x1001
+
+      @cpu.inc_pc_by_mode(:acc)
+      @cpu.pc.should == 0x1002
+
+      @cpu.inc_pc_by_mode(:imm)
+      @cpu.pc.should == 0x1004
+
+      @cpu.inc_pc_by_mode(:zp)
+      @cpu.pc.should == 0x1006
+
+      @cpu.inc_pc_by_mode(:zpx)
+      @cpu.pc.should == 0x1008
+
+      @cpu.inc_pc_by_mode(:abs)
+      @cpu.pc.should == 0x100b
+
+      @cpu.inc_pc_by_mode(:absx)
+      @cpu.pc.should == 0x100e
+
+      @cpu.inc_pc_by_mode(:absy)
+      @cpu.pc.should == 0x1011
+
+      @cpu.inc_pc_by_mode(:indx)
+      @cpu.pc.should == 0x1013
+
+      @cpu.inc_pc_by_mode(:indy)
+      @cpu.pc.should == 0x1015
+
+      @cpu.inc_pc_by_mode(:rel)
+      @cpu.pc.should == 0x1017
+
+      @cpu.inc_pc_by_mode(:ind)
+      @cpu.pc.should == 0x101a
+    end
   end
 end
