@@ -15,6 +15,15 @@ module R6502
       @cpu.y.should  == 0x00
       @cpu.a.should  == 0x00
     end
+    it "has processor status flags" do
+      @cpu.c.should == 0
+      @cpu.z.should == 0
+      @cpu.i.should == 0
+      @cpu.d.should == 0
+      @cpu.b.should == 0
+      @cpu.o.should == 0
+      @cpu.n.should == 0
+    end
     it "Finds instruction and mode from opcode" do
       @cpu.instr_mode(0xa9).should == {:instr => :lda, :mode => :imm}
       @cpu.instr_mode(0x69).should == {:instr => :adc, :mode => :imm}

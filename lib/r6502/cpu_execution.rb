@@ -1,6 +1,7 @@
 module R6502
   class Cpu
     attr_accessor :mem, :pc, :s, :x, :y, :a
+    attr_accessor :c, :z, :i, :d, :b, :o, :n
     def initialize(mem)
       @mem = mem
       @pc = @mem.get_word(0xfffc)
@@ -8,6 +9,13 @@ module R6502
       @x  = 0x00
       @y  = 0x00
       @a  = 0x00
+      @c  = 0
+      @z  = 0
+      @i  = 0
+      @d  = 0
+      @b  = 0
+      @o  = 0
+      @n  = 0
     end
     def step
       i_m = instr_mode( mem.get(pc) )
