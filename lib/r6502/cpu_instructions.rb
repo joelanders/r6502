@@ -68,5 +68,9 @@ module R6502
     def sbc(a1, a2)
       (0xff & (a1 - a2))
     end
+    # no operation
+    def nop(arg_and_mode)
+      @pc += 1
+    end
   end
 end

@@ -1,5 +1,5 @@
 module R6502
-  class Emulator
+  class Cpu
     def instr_mode(opcode)
     #adc
       { 0x69 => {:instr => :adc, :mode => :imm},

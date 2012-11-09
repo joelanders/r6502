@@ -69,5 +69,8 @@ module R6502
     it "sbc" do
       @cpu.sbc(0x10, 0x0a).should == 0x06
     end
+    it "nop" do
+      @cpu.nop({arg: nil, mode: :imp})
+    end
   end
 end
