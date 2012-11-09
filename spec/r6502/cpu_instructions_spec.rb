@@ -167,5 +167,21 @@ module R6502
     it "nop" do
       @cpu.nop({arg: nil, mode: :imp})
     end
+    it "sec" do
+      @cpu.c = 0
+      @cpu.sec({})
+      @cpu.c.should == 1
+    end
+    it "bcc" do
+      @cpu.pc = 0x1000
+      @cpu.c  = 1
+      @cpu.bcc( {arg: 0x10, mode: :rel} )
+      @cpu.pc.should == 0x1002
+
+      @cpu.pc = 0x1000
+      @cpu.c  = 0
+      @cpu.bcc( {arg: 0x10, mode: :rel} )
+      @cpu.pc.should == 0x1012
+    end
   end
 end

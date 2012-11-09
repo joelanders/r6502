@@ -114,5 +114,12 @@ module R6502
     def nop(arg_and_mode)
       @pc += 1
     end
+    def sec(arg_and_mode)
+      @c = 1
+    end
+    def bcc(arg_and_mode)
+      inc_pc_by_mode(:rel)
+      @pc += arg_and_mode[:arg] if @c == 0
+    end
   end
 end
