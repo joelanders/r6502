@@ -4,7 +4,14 @@ module R6502
     # DEPENDS ON DECIMAL FLAG
     # TODO
     def adc(arg_and_mode)
-      @a = @a + arg_and_mode[:arg]
+      x = @a
+      y = arg_and_mode[:arg]
+      r = x + y + @c
+      @a = r&0xff
+      @o = (((0x7f&x) + (0x7f&y) + @c)>>7) ^ ((x + y)>>8)
+      @z = (r&0xff).zero? ? 1 : 0
+      @c = r > 255 ? 1 : 0
+      @n = (0x80&r)>>7
     end
     # logical and
     def and(arg_and_mode)

@@ -1,6 +1,119 @@
 require 'spec_helper'
 
 module R6502
+  describe "Cpu Instructions set flags" do
+    before(:each) do
+      @mem = Memory.new
+      @cpu = Cpu.new(@mem)
+    end
+    it "adc 0" do
+      @cpu.o = 0x1
+      @cpu.z = 0x1
+      @cpu.c = 0x1
+      @cpu.n = 0x1
+
+      @cpu.a = 0x01
+      @cpu.adc( {arg: 0x02, mode: :imm} )
+      @cpu.o.should == 0x0 #overflow
+      @cpu.z.should == 0x0 #zero
+      @cpu.c.should == 0x0 #carry
+      @cpu.n.should == 0x0 #negative
+    end
+    it "adc 1" do
+      @cpu.o = 0x1
+      @cpu.z = 0x1
+      @cpu.c = 0x0
+      @cpu.n = 0x1
+
+      @cpu.a = 0x0a
+      @cpu.adc( {arg: 0xff, mode: :imm} )
+      @cpu.o.should == 0x0 #overflow
+      @cpu.z.should == 0x0 #zero
+      @cpu.c.should == 0x1 #carry
+      @cpu.n.should == 0x0 #negative
+    end
+    it "adc 2" do
+      @cpu.o = 0x0
+      @cpu.z = 0x1
+      @cpu.c = 0x1
+      @cpu.n = 0x0
+
+      @cpu.a = 0x70
+      @cpu.adc( {arg: 0x70, mode: :imm} )
+      @cpu.o.should == 0x1 #overflow
+      @cpu.z.should == 0x0 #zero
+      @cpu.c.should == 0x0 #carry
+      @cpu.n.should == 0x1 #negative
+    end
+    it "adc 3" do
+      @cpu.o = 0x0
+      @cpu.z = 0x1
+      @cpu.c = 0x0
+      @cpu.n = 0x1
+
+      @cpu.a = 0x80
+      @cpu.adc( {arg: 0x90, mode: :imm} )
+      @cpu.o.should == 0x1 #overflow
+      @cpu.z.should == 0x0 #zero
+      @cpu.c.should == 0x1 #carry
+      @cpu.n.should == 0x0 #negative
+    end
+    it "adc 4" do
+      @cpu.o = 0x1
+      @cpu.z = 0x1
+      @cpu.c = 0x0
+      @cpu.n = 0x0
+
+      @cpu.a = 0xf0
+      @cpu.adc( {arg: 0xf0, mode: :imm} )
+      @cpu.o.should == 0x0 #overflow
+      @cpu.z.should == 0x0 #zero
+      @cpu.c.should == 0x1 #carry
+      @cpu.n.should == 0x1 #negative
+    end
+    it "adc 5" do
+      @cpu.o = 0x0
+      @cpu.z = 0x1
+      @cpu.c = 0x1
+      @cpu.n = 0x1
+
+      @cpu.a = 0x70
+      @cpu.adc( {arg: 0x80, mode: :imm} )
+      @cpu.o.should == 0x0 #overflow
+      @cpu.z.should == 0x0 #zero
+      @cpu.c.should == 0x0 #carry
+      @cpu.n.should == 0x1 #negative
+      @cpu.a.should == 0xf1
+    end
+    it "adc 6" do
+      @cpu.o = 0x0
+      @cpu.z = 0x1
+      @cpu.c = 0x1
+      @cpu.n = 0x0
+
+      @cpu.a = 0x70
+      @cpu.adc( {arg: 0x0f, mode: :imm} )
+      @cpu.o.should == 0x1 #overflow
+      @cpu.z.should == 0x0 #zero
+      @cpu.c.should == 0x0 #carry
+      @cpu.n.should == 0x1 #negative
+      @cpu.a.should == 0x80
+    end
+    it "adc 7" do
+      @cpu.o = 0x0
+      @cpu.z = 0x0
+      @cpu.c = 0x0
+      @cpu.n = 0x1
+
+      @cpu.a = 0x80
+      @cpu.adc( {arg: 0x80, mode: :imm} )
+      @cpu.o.should == 0x1 #overflow
+      @cpu.z.should == 0x1 #zero
+      @cpu.c.should == 0x1 #carry
+      @cpu.n.should == 0x0 #negative
+      @cpu.a.should == 0x00
+    end
+  end
   describe "Cpu Instructions" do
     before(:each) do
       @mem = Memory.new
