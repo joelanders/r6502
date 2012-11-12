@@ -3,9 +3,9 @@ module R6502
     # add with carry
     # DEPENDS ON DECIMAL FLAG
     # TODO
-    def adc(arg_and_mode)
+    def adc(arg, mode)
       x = @a
-      y = arg_and_mode[:arg]
+      y = arg
       r = x + y + @c
       @a = r&0xff
       @o = (((0x7f&x) + (0x7f&y) + @c)>>7) ^ ((x + y)>>8)
@@ -14,21 +14,21 @@ module R6502
       @n = (0x80&r)>>7
     end
     # logical and
-    def and(arg_and_mode)
-      @a = @a & arg_and_mode[:arg]
+    def and(arg, mode)
+      @a = @a & arg
     end
     # shift left
-    def asl(arg_and_mode)
-      case arg_and_mode[:mode]
+    def asl(arg, mode)
+      case mode
       when :acc
         @a = @a<<1
       else
-        @mem.set( arg_and_mode[:arg], @mem.get(arg_and_mode[:arg])<<1 )
+        @mem.set( arg, @mem.get(arg)<<1 )
       end
     end
     # logical and (result discarded)
-    def bit(arg_and_mode)
-      m = @mem.get( arg_and_mode[:arg] )
+    def bit(arg, mode)
+      m = @mem.get( arg )
       a = @a
       result = a & m
       @z = 1 if result == 0
@@ -36,136 +36,136 @@ module R6502
       @n = (m & 0x80)>>7
     end
     # decrement (memory)
-    def dec(arg_and_mode)
-      @mem.set( arg_and_mode[:arg], @mem.get(arg_and_mode[:arg]) - 1 )
+    def dec(arg, mode)
+      @mem.set( arg, @mem.get(arg) - 1 )
     end
     # decrement (x)
-    def dex(arg_and_mode)
+    def dex(arg, mode)
       @x -= 1
     end
     # decrement (y)
-    def dey(arg_and_mode)
+    def dey(arg, mode)
       @y -= 1
     end
     # exclusive or
-    def eor(arg_and_mode)
-      case arg_and_mode[:mode]
+    def eor(arg, mode)
+      case mode
       when :imm
-        @a = @a ^ arg_and_mode[:arg]
+        @a = @a ^ arg
       else
-        @a = @a ^ @mem.get(arg_and_mode[:arg])
+        @a = @a ^ @mem.get(arg)
       end
     end
     # increment (memory)
-    def inc(arg_and_mode)
-      @mem.set( arg_and_mode[:arg], @mem.get(arg_and_mode[:arg]) + 1 )
+    def inc(arg, mode)
+      @mem.set( arg, @mem.get(arg) + 1 )
     end
     # increment (x)
-    def inx(arg_and_mode)
+    def inx(arg, mode)
       @x += 1
     end
     # increment (y)
-    def iny(arg_and_mode)
+    def iny(arg, mode)
       @y += 1
     end
     # shift right
-    def lsr(arg_and_mode)
-      case arg_and_mode[:mode]
+    def lsr(arg, mode)
+      case mode
       when :acc
         @a = @a>>1
       else
-        @mem.set( arg_and_mode[:arg], @mem.get(arg_and_mode[:arg]) >> 1 )
+        @mem.set( arg, @mem.get(arg) >> 1 )
       end
     end
     # inclusive or
-    def ora(arg_and_mode)
-      case arg_and_mode[:mode]
+    def ora(arg, mode)
+      case mode
       when :imm
-        @a = @a | arg_and_mode[:arg]
+        @a = @a | arg
       else
-        @a = @a | @mem.get( arg_and_mode[:arg] )
+        @a = @a | @mem.get( arg )
       end
     end
     # rotate left
-    def rol(arg_and_mode)
-      case arg_and_mode[:mode]
+    def rol(arg, mode)
+      case mode
       when :acc
         @a = (0xff & (@a<<1)) | ((0x80 & @a)>>7)
       else
-        val = @mem.get(arg_and_mode[:arg])
+        val = @mem.get(arg)
         val = (0xff & (val<<1)) | ((0x80 & val)>>7)
-        @mem.set(arg_and_mode[:arg], val)
+        @mem.set(arg, val)
       end
     end
     # rotate right
-    def ror(arg_and_mode)
+    def ror(arg, mode)
       #(a>>1) | ((0x01 & a)<<7)
-      case arg_and_mode[:mode]
+      case mode
       when :acc
         @a = (@a>>1) | ((0x01 & @a)<<7)
       else
-        val = @mem.get(arg_and_mode[:arg])
+        val = @mem.get(arg)
         val = (val>>1) | ((0x01 & val)<<7)
-        @mem.set(arg_and_mode[:arg], val)
+        @mem.set(arg, val)
       end
     end
     # subtract with carry
     # DEPENDS ON DECIMAL FLAG
     # TODO
-    def sbc(arg_and_mode)
-      case arg_and_mode[:mode]
+    def sbc(arg, mode)
+      case mode
       when :imm
-        val = arg_and_mode[:arg]
+        val = arg
         @a = (0xff & (@a - val))
       else
-        val = @mem.get( arg_and_mode[:arg] )
+        val = @mem.get( arg )
         @a = (0xff & (@a - val))
       end
     end
     # no operation
-    def nop(arg_and_mode)
+    def nop(arg, mode)
       @pc += 1
     end
-    def sec(arg_and_mode)
+    def sec(arg, mode)
       @c = 1
     end
-    def sed(arg_and_mode)
+    def sed(arg, mode)
       @d = 1
     end
-    def sei(arg_and_mode)
+    def sei(arg, mode)
       @i = 1
     end
-    def bcc(arg_and_mode)
+    def bcc(arg, mode)
       inc_pc_by_mode(:rel)
-      @pc += arg_and_mode[:arg] if @c == 0
+      @pc += arg if @c == 0
     end
-    def bcs(arg_and_mode)
+    def bcs(arg, mode)
       inc_pc_by_mode(:rel)
-      @pc += arg_and_mode[:arg] if @c == 1
+      @pc += arg if @c == 1
     end
-    def beq(arg_and_mode)
+    def beq(arg, mode)
       inc_pc_by_mode(:rel)
-      @pc += arg_and_mode[:arg] if @z == 1
+      @pc += arg if @z == 1
     end
-    def bmi(arg_and_mode)
+    def bmi(arg, mode)
       inc_pc_by_mode(:rel)
-      @pc += arg_and_mode[:arg] if @n == 1
+      @pc += arg if @n == 1
     end
-    def bne(arg_and_mode)
+    def bne(arg, mode)
       inc_pc_by_mode(:rel)
-      @pc += arg_and_mode[:arg] if @z == 1
+      @pc += arg if @z == 1
     end
-    def bpl(arg_and_mode)
+    def bpl(arg, mode)
       inc_pc_by_mode(:rel)
-      @pc += arg_and_mode[:arg] if @n == 0
+      @pc += arg if @n == 0
     end
-    def bvc(arg_and_mode)
+    def bvc(arg, mode)
       inc_pc_by_mode(:rel)
-      @pc += arg_and_mode[:arg] if @o == 0
+      @pc += arg if @o == 0
     end
-    def bvs(arg_and_mode)
+    def bvs(arg, mode)
       inc_pc_by_mode(:rel)
-      @pc += arg_and_mode[:arg] if @o == 1
+      @pc += arg if @o == 1
     end
     def clc()
       @c = 0
@@ -179,83 +179,83 @@ module R6502
     def clv()
       @o = 0
     end
-    def cmp( arg_and_mode )
-      case arg_and_mode[:mode]
+    def cmp(arg, mode)
+      case mode
       when :imm
-        result = @a - arg_and_mode[:arg]
+        result = @a - arg
         @c = result >= 0 ? 1 : 0
         @z = result == 0 ? 1 : 0
         #TODO negative flag
       else
-        m = @mem.get( arg_and_mode[:arg] )
+        m = @mem.get( arg )
         result = @a - m
         @c = result >= 0 ? 1 : 0
         @z = result == 0 ? 1 : 0
         #TODO negative flag
       end
     end
-    def cpx( arg_and_mode )
-      case arg_and_mode[:mode]
+    def cpx(arg, mode)
+      case mode
       when :imm
-        result = @x - arg_and_mode[:arg]
+        result = @x - arg
         @c = result >= 0 ? 1 : 0
         @z = result == 0 ? 1 : 0
         #TODO negative flag
       else
-        m = @mem.get( arg_and_mode[:arg] )
+        m = @mem.get( arg )
         result = @x - m
         @c = result >= 0 ? 1 : 0
         @z = result == 0 ? 1 : 0
         #TODO negative flag
       end
     end
-    def cpy( arg_and_mode )
-      case arg_and_mode[:mode]
+    def cpy(arg, mode)
+      case mode
       when :imm
-        result = @y - arg_and_mode[:arg]
+        result = @y - arg
         @c = result >= 0 ? 1 : 0
         @z = result == 0 ? 1 : 0
         #TODO negative flag
       else
-        m = @mem.get( arg_and_mode[:arg] )
+        m = @mem.get( arg )
         result = @y - m
         @c = result >= 0 ? 1 : 0
         @z = result == 0 ? 1 : 0
         #TODO negative flag
       end
     end
-    def jmp( arg_and_mode )
-      case arg_and_mode[:mode]
+    def jmp(arg, mode)
+      case mode
       when :abs
-        @pc = arg_and_mode[:arg]
+        @pc = arg
       else #indirect
-        lsb = @mem.get( arg_and_mode[:arg] )
-        msb = @mem.get( arg_and_mode[:arg] + 1)
+        lsb = @mem.get( arg )
+        msb = @mem.get( arg + 1)
         @pc = lsb + msb<<8
       end
     end
-    def lda( arg_and_mode )
-      case arg_and_mode[:mode]
+    def lda(arg, mode)
+      case mode
       when :imm
-        @a = arg_and_mode[:arg]
+        @a = arg
       else
-        @a = @mem.get( arg_and_mode[:arg] )
+        @a = @mem.get( arg )
       end
     end
-    def ldx( arg_and_mode )
-      case arg_and_mode[:mode]
+    def ldx(arg, mode)
+      case mode
       when :imm
-        @x = arg_and_mode[:arg]
+        @x = arg
       else
-        @x = @mem.get( arg_and_mode[:arg] )
+        @x = @mem.get( arg )
       end
     end
-    def ldy( arg_and_mode )
-      case arg_and_mode[:mode]
+    def ldy(arg, mode)
+      case mode
       when :imm
-        @y = arg_and_mode[:arg]
+        @y = arg
       else
-        @y = @mem.get( arg_and_mode[:arg] )
+        @y = @mem.get( arg )
       end
     end
     def pha()
@@ -294,14 +294,14 @@ module R6502
       @o = 0x1 & (val>>6)
       @n = 0x1 & (val>>7)
     end
-    def sta( arg_and_mode )
-      @mem.set( arg_and_mode[:arg], @a )
+    def sta(arg, mode)
+      @mem.set( arg, @a )
     end
-    def stx( arg_and_mode )
-      @mem.set( arg_and_mode[:arg], @x )
+    def stx(arg, mode)
+      @mem.set( arg, @x )
     end
-    def sty( arg_and_mode )
-      @mem.set( arg_and_mode[:arg], @y )
+    def sty(arg, mode)
+      @mem.set( arg, @y )
     end
     def tax()
       @x = @a

@@ -25,11 +25,11 @@ module R6502
       @cpu.n.should == 0
     end
     it "Finds instruction and mode from opcode" do
-      @cpu.instr_mode(0xa9).should == {:instr => :lda, :mode => :imm}
-      @cpu.instr_mode(0x69).should == {:instr => :adc, :mode => :imm}
-      @cpu.instr_mode(0x65).should == {:instr => :adc, :mode => :zp}
-      @cpu.instr_mode(0x75).should == {:instr => :adc, :mode => :zpx}
-      @cpu.instr_mode(0x0a).should == {:instr => :asl, :mode => :acc}
+      @cpu.instr_mode(0xa9).should == [:lda, :imm]
+      @cpu.instr_mode(0x69).should == [:adc, :imm]
+      @cpu.instr_mode(0x65).should == [:adc, :zp]
+      @cpu.instr_mode(0x75).should == [:adc, :zpx]
+      @cpu.instr_mode(0x0a).should == [:asl, :acc]
     end
     it "Finds the argument to the instruction" do
       # IMPLIED

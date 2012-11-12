@@ -18,11 +18,10 @@ module R6502
       @n  = 0
     end
     def step
-      i_m = instr_mode( mem.get(pc) )
-      arg = decode_arg( i_m[:mode], mem.get(pc+1), mem.get(pc+2) )
-      arg_and_mode = {arg: arg, mode: i_m[:mode]}
+      instr, mode = instr_mode( mem.get(pc) )
+      arg = decode_arg( mode, mem.get(pc+1), mem.get(pc+2) )
 
-      method( i_m[:instr] ).call( arg_and_mode )
+      method( instr ).call( arg, mode )
     end
     def decode_arg(mode, sec_word, thd_word)
       case mode
