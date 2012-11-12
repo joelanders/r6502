@@ -8,7 +8,7 @@ module R6502
       y = arg
       r = x + y + @c
       @a = r&0xff
-      @o = (((0x7f&x) + (0x7f&y) + @c)>>7) ^ ((x + y)>>8)
+      @v = (((0x7f&x) + (0x7f&y) + @c)>>7) ^ ((x + y)>>8)
       @z = (r&0xff).zero? ? 1 : 0
       @c = r > 255 ? 1 : 0
       @n = (0x80&r)>>7
@@ -32,7 +32,7 @@ module R6502
       a = @a
       result = a & m
       @z = 1 if result == 0
-      @o = (m & 0x40)>>6
+      @v = (m & 0x40)>>6
       @n = (m & 0x80)>>7
     end
     # decrement (memory)
@@ -161,11 +161,11 @@ module R6502
     end
     def bvc(arg, mode)
       inc_pc_by_mode(:rel)
-      @pc += arg if @o == 0
+      @pc += arg if @v == 0
     end
     def bvs(arg, mode)
       inc_pc_by_mode(:rel)
-      @pc += arg if @o == 1
+      @pc += arg if @v == 1
     end
     def clc()
       @c = 0
@@ -177,7 +177,7 @@ module R6502
       @i = 0
     end
     def clv()
-      @o = 0
+      @v = 0
     end
     def cmp(arg, mode)
       case mode
@@ -271,7 +271,7 @@ module R6502
     def php()
       addr = 0x0100 + (0xff & @s)
       val =            @n #bit 7
-      val = (val<<1) + @o #bit 6
+      val = (val<<1) + @v #bit 6
       val = (val<<1) +  1 #bit 5
       val = (val<<1) + @b #bit 4
       val = (val<<1) + @d #bit 3
@@ -291,7 +291,7 @@ module R6502
       @d = 0x1 & (val>>3)
       @b = 0x1 & (val>>4)
       # bit 5
-      @o = 0x1 & (val>>6)
+      @v = 0x1 & (val>>6)
       @n = 0x1 & (val>>7)
     end
     def sta(arg, mode)

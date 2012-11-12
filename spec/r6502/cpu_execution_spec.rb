@@ -21,7 +21,7 @@ module R6502
       @cpu.i.should == 0
       @cpu.d.should == 0
       @cpu.b.should == 0
-      @cpu.o.should == 0
+      @cpu.v.should == 0
       @cpu.n.should == 0
     end
     it "Finds instruction and mode from opcode" do

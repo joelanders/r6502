@@ -7,107 +7,107 @@ module R6502
       @cpu = Cpu.new(@mem)
     end
     it "adc 0" do
-      @cpu.o = 0x1
+      @cpu.v = 0x1
       @cpu.z = 0x1
       @cpu.c = 0x1
       @cpu.n = 0x1
 
       @cpu.a = 0x01
       @cpu.adc(0x02, :imm)
-      @cpu.o.should == 0x0 #overflow
+      @cpu.v.should == 0x0 #overflow
       @cpu.z.should == 0x0 #zero
       @cpu.c.should == 0x0 #carry
       @cpu.n.should == 0x0 #negative
     end
     it "adc 1" do
-      @cpu.o = 0x1
+      @cpu.v = 0x1
       @cpu.z = 0x1
       @cpu.c = 0x0
       @cpu.n = 0x1
 
       @cpu.a = 0x0a
       @cpu.adc(0xff, :imm)
-      @cpu.o.should == 0x0 #overflow
+      @cpu.v.should == 0x0 #overflow
       @cpu.z.should == 0x0 #zero
       @cpu.c.should == 0x1 #carry
       @cpu.n.should == 0x0 #negative
     end
     it "adc 2" do
-      @cpu.o = 0x0
+      @cpu.v = 0x0
       @cpu.z = 0x1
       @cpu.c = 0x1
       @cpu.n = 0x0
 
       @cpu.a = 0x70
       @cpu.adc(0x70, :imm)
-      @cpu.o.should == 0x1 #overflow
+      @cpu.v.should == 0x1 #overflow
       @cpu.z.should == 0x0 #zero
       @cpu.c.should == 0x0 #carry
       @cpu.n.should == 0x1 #negative
     end
     it "adc 3" do
-      @cpu.o = 0x0
+      @cpu.v = 0x0
       @cpu.z = 0x1
       @cpu.c = 0x0
       @cpu.n = 0x1
 
       @cpu.a = 0x80
       @cpu.adc(0x90, :imm)
-      @cpu.o.should == 0x1 #overflow
+      @cpu.v.should == 0x1 #overflow
       @cpu.z.should == 0x0 #zero
       @cpu.c.should == 0x1 #carry
       @cpu.n.should == 0x0 #negative
     end
     it "adc 4" do
-      @cpu.o = 0x1
+      @cpu.v = 0x1
       @cpu.z = 0x1
       @cpu.c = 0x0
       @cpu.n = 0x0
 
       @cpu.a = 0xf0
       @cpu.adc(0xf0, :imm)
-      @cpu.o.should == 0x0 #overflow
+      @cpu.v.should == 0x0 #overflow
       @cpu.z.should == 0x0 #zero
       @cpu.c.should == 0x1 #carry
       @cpu.n.should == 0x1 #negative
     end
     it "adc 5" do
-      @cpu.o = 0x0
+      @cpu.v = 0x0
       @cpu.z = 0x1
       @cpu.c = 0x1
       @cpu.n = 0x1
 
       @cpu.a = 0x70
       @cpu.adc(0x80, :imm)
-      @cpu.o.should == 0x0 #overflow
+      @cpu.v.should == 0x0 #overflow
       @cpu.z.should == 0x0 #zero
       @cpu.c.should == 0x0 #carry
       @cpu.n.should == 0x1 #negative
       @cpu.a.should == 0xf1
     end
     it "adc 6" do
-      @cpu.o = 0x0
+      @cpu.v = 0x0
       @cpu.z = 0x1
       @cpu.c = 0x1
       @cpu.n = 0x0
 
       @cpu.a = 0x70
       @cpu.adc(0x0f, :imm)
-      @cpu.o.should == 0x1 #overflow
+      @cpu.v.should == 0x1 #overflow
       @cpu.z.should == 0x0 #zero
       @cpu.c.should == 0x0 #carry
       @cpu.n.should == 0x1 #negative
       @cpu.a.should == 0x80
     end
     it "adc 7" do
-      @cpu.o = 0x0
+      @cpu.v = 0x0
       @cpu.z = 0x0
       @cpu.c = 0x0
       @cpu.n = 0x1
 
       @cpu.a = 0x80
       @cpu.adc(0x80, :imm)
-      @cpu.o.should == 0x1 #overflow
+      @cpu.v.should == 0x1 #overflow
       @cpu.z.should == 0x1 #zero
       @cpu.c.should == 0x1 #carry
       @cpu.n.should == 0x0 #negative
@@ -156,14 +156,14 @@ module R6502
       @mem.set(0x3010, 0xf1)
       @cpu.a = 0x02
       @cpu.z = 0
-      @cpu.o = 0
+      @cpu.v = 0
       @cpu.n = 0
 
       @cpu.bit(0x3010, :abs)
       @cpu.z.should == 1
       @cpu.a.should == 0x02
       @mem.get(0x3010).should == 0xf1
-      @cpu.o.should == 1
+      @cpu.v.should == 1
       @cpu.n.should == 1
     end
     it "dec" do
@@ -369,23 +369,23 @@ module R6502
     end
     it "bvc" do
       @cpu.pc = 0x1000
-      @cpu.o  = 1
+      @cpu.v  = 1
       @cpu.bvc(0x10, :rel)
       @cpu.pc.should == 0x1002
 
       @cpu.pc = 0x1000
-      @cpu.o  = 0
+      @cpu.v  = 0
       @cpu.bvc(0x10, :rel)
       @cpu.pc.should == 0x1012
     end
     it "bvs" do
       @cpu.pc = 0x1000
-      @cpu.o  = 0
+      @cpu.v  = 0
       @cpu.bvs(0x10, :rel)
       @cpu.pc.should == 0x1002
 
       @cpu.pc = 0x1000
-      @cpu.o  = 1
+      @cpu.v  = 1
       @cpu.bvs(0x10, :rel)
       @cpu.pc.should == 0x1012
     end
@@ -419,13 +419,13 @@ module R6502
       @cpu.i.should == 0
     end
     it "clv" do
-      @cpu.o = 1
+      @cpu.v = 1
       @cpu.clv
-      @cpu.o.should == 0
+      @cpu.v.should == 0
 
-      @cpu.o = 0
+      @cpu.v = 0
       @cpu.clv
-      @cpu.o.should == 0
+      @cpu.v.should == 0
     end
     #TODO negative flag
     it "cmp" do
@@ -553,7 +553,7 @@ module R6502
       @cpu.d = 0
       @cpu.b = 1
       #bit 5   1
-      @cpu.o = 0
+      @cpu.v = 0
       @cpu.n = 1
 
       @cpu.s = 0xff
@@ -567,7 +567,7 @@ module R6502
       @cpu.d = 1
       @cpu.b = 0
       #bit 5   1
-      @cpu.o = 1
+      @cpu.v = 1
       @cpu.n = 0
 
       @cpu.s = 0xfe
@@ -582,7 +582,7 @@ module R6502
       @cpu.d = 0
       @cpu.b = 1
       #bit 5   1
-      @cpu.o = 0
+      @cpu.v = 0
       @cpu.n = 1
 
       @mem.set(0x01ff, 0b01101010)
@@ -595,7 +595,7 @@ module R6502
       @cpu.d.should == 1
       @cpu.b.should == 0
       #bit 5           1
-      @cpu.o.should == 1
+      @cpu.v.should == 1
       @cpu.n.should == 0
     end
     pending "rti"
