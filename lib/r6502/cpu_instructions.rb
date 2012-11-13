@@ -6,12 +6,23 @@ module R6502
     def adc(arg, mode)
       x = @a
       y = mode == :imm ? arg : @mem.get(arg)
-      r = x + y + @c
-      @a = 0xff & r
-      @v = (((0x7f&x) + (0x7f&y) + @c)>>7) ^ ((x + y + @c)>>8)
-      @z = (r&0xff).zero? ? 1 : 0
-      @c = r > 255 ? 1 : 0
-      @n = (0x80&r)>>7
+      if @d == 0 #normal binary mode
+        r = x + y + @c
+        @a = 0xff & r
+        @v = (((0x7f&x) + (0x7f&y) + @c)>>7) ^ ((x + y + @c)>>8)
+        @z = (r&0xff).zero? ? 1 : 0
+        @c = r > 255 ? 1 : 0
+        @n = (0x80&r)>>7
+      else #BCD mode
+        ones = (0xf&x) + (0xf&y)
+        tens = ((0xf0&x)>>4) + ((0xf0&y)>>4)
+        r0 = ones + 10*tens + @c
+        @c = r0 > 99 ? 1 : 0
+        r = r0 % 100
+        @z = r.zero? ? 1 : 0
+        @a = r + 6*((r/10).floor)
+        @n = (0x80&@a)>>7
+      end
     end
     # subtract with carry
     # DEPENDS ON DECIMAL FLAG
@@ -19,13 +30,24 @@ module R6502
     def sbc(arg, mode)
       x = @a
       y = mode == :imm ? arg : @mem.get(arg)
-      y = (y^0xff)
-      r = x + y + @c
-      @a = 0xff & r
-      @v = (((0x7f&x) + (0x7f&y) + @c)>>7) ^ ((x + y + @c)>>8)
-      @z = (0xff&r).zero? ? 1 : 0
-      @c = r > 255 ? 1 : 0
-      @n = (0x80&r)>>7
+      if @d == 0 #normal binary mode
+        y = (y^0xff)
+        r = x + y + @c
+        @a = 0xff & r
+        @v = (((0x7f&x) + (0x7f&y) + @c)>>7) ^ ((x + y + @c)>>8)
+        @z = (0xff&r).zero? ? 1 : 0
+        @c = r > 255 ? 1 : 0
+        @n = (0x80&r)>>7
+      else #BCD mode
+        ones = (0xf&x) - (0xf&y)
+        tens = ((0xf0&x)>>4) - ((0xf0&y)>>4)
+        r0 = ones + 10*tens - (1 - @c)
+        @c = r0 >= 0 ? 1 : 0
+        r = r0 % 100
+        @z = r.zero? ? 1 : 0
+        @a = r + 6*((r/10).floor)
+        @n = (0x80&@a)>>7
+      end
     end
     # logical and
     def and(arg, mode)

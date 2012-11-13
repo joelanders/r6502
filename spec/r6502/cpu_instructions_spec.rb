@@ -209,6 +209,120 @@ module R6502
         @cpu.n.should == 1
       end
     end
+
+    describe "ADC and SBC BCD" do
+      it "adc bcd" do
+        @cpu.d = 1
+
+        @cpu.a = 0x09
+        @cpu.clc
+        @cpu.adc(0x02, :imm)
+        @cpu.a.should == 0x11
+        @cpu.c.should == 0
+        @cpu.z.should == 0
+        @cpu.n.should == 0
+
+        @cpu.a = 0x49
+        @cpu.clc
+        @cpu.adc(0x49, :imm)
+        @cpu.a.should == 0x98
+        @cpu.c.should == 0
+        @cpu.z.should == 0
+        @cpu.n.should == 1
+
+        @cpu.a = 0x90
+        @cpu.clc
+        @cpu.adc(0x10, :imm)
+        @cpu.a.should == 0x00
+        @cpu.c.should == 1
+        @cpu.z.should == 1
+        @cpu.n.should == 0
+
+        @cpu.a = 0x99
+        @cpu.clc
+        @cpu.adc(0x99, :imm)
+        @cpu.a.should == 0x98
+        @cpu.c.should == 1
+        @cpu.z.should == 0
+        @cpu.n.should == 1
+
+        @cpu.a = 0x99
+        @cpu.clc
+        @cpu.adc(0x00, :imm)
+        @cpu.a.should == 0x99
+        @cpu.c.should == 0
+        @cpu.z.should == 0
+        @cpu.n.should == 1
+
+        @cpu.a = 0x99
+        @cpu.clc
+        @cpu.adc(0x01, :imm)
+        @cpu.a.should == 0x00
+        @cpu.c.should == 1
+        @cpu.z.should == 1
+        @cpu.n.should == 0
+
+        @cpu.a = 0x00
+        @cpu.clc
+        @cpu.adc(0x00, :imm)
+        @cpu.a.should == 0x00
+        @cpu.c.should == 0
+        @cpu.z.should == 1
+        @cpu.n.should == 0
+
+        @cpu.a = 0x99
+        @cpu.sec(nil, :imp)
+        @cpu.adc(0x00, :imm)
+        @cpu.a.should == 0x00
+        @cpu.c.should == 1
+        @cpu.z.should == 1
+        @cpu.n.should == 0
+      end
+
+      it "sbc bcd" do
+        @cpu.d = 1
+
+        @cpu.a = 0x11
+        @cpu.sec(nil, :imp)
+        @cpu.sbc(0x02, :imm)
+        @cpu.a.should == 0x09
+        @cpu.c.should == 1
+        @cpu.z.should == 0
+        @cpu.n.should == 0
+
+        @cpu.a = 0x01
+        @cpu.sec(nil, :imp)
+        @cpu.sbc(0x01, :imm)
+        @cpu.a.should == 0x00
+        @cpu.c.should == 1
+        @cpu.z.should == 1
+        @cpu.n.should == 0
+
+        @cpu.a = 0x98
+        @cpu.sec(nil, :imp)
+        @cpu.sbc(0x99, :imm)
+        @cpu.a.should == 0x99
+        @cpu.c.should == 0
+        @cpu.z.should == 0
+        @cpu.n.should == 1
+
+        @cpu.a = 0x00
+        @cpu.sec(nil, :imp)
+        @cpu.sbc(0x32, :imm)
+        @cpu.a.should == 0x68
+        @cpu.c.should == 0
+        @cpu.z.should == 0
+        @cpu.n.should == 0
+
+        @cpu.a = 0x00
+        @cpu.clc
+        @cpu.sbc(0x00, :imm)
+        @cpu.a.should == 0x99
+        @cpu.c.should == 0
+        @cpu.z.should == 0
+        @cpu.n.should == 1
+      end
+    end
   end
   describe "Cpu Instructions" do
     before(:each) do
