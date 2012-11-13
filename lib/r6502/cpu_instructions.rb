@@ -5,7 +5,7 @@ module R6502
     # TODO
     def adc(arg, mode)
       x = @a
-      y = arg
+      y = mode == :imm ? arg : @mem.get(arg)
       r = x + y + @c
       @a = 0xff & r
       @v = (((0x7f&x) + (0x7f&y) + @c)>>7) ^ ((x + y + @c)>>8)

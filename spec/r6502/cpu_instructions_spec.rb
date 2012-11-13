@@ -225,6 +225,10 @@ module R6502
       @cpu.a = 0x02
       @cpu.adc(0x01, :imm)
       @cpu.a.should == 0x03
+
+      @mem.set(0x1000, 0xf0)
+      @cpu.adc(0x1000, :abs)
+      @cpu.a.should == 0xf3
     end
     it "and" do
       @cpu.a = 0xab
