@@ -6,122 +6,214 @@ module R6502
       @mem = Memory.new
       @cpu = Cpu.new(@mem)
     end
-    it "adc 0" do
-      @cpu.v = 0x1
-      @cpu.z = 0x1
-      @cpu.c = 0x1
-      @cpu.n = 0x1
+    describe "ADC sets flags" do
+      it "adc 0" do
+        @cpu.v = 0x1
+        @cpu.z = 0x1
+        @cpu.c = 0x1
+        @cpu.n = 0x1
 
-      @cpu.a = 0x01
-      @cpu.adc(0x02, :imm)
-      @cpu.v.should == 0x0 #overflow
-      @cpu.z.should == 0x0 #zero
-      @cpu.c.should == 0x0 #carry
-      @cpu.n.should == 0x0 #negative
+        @cpu.a = 0x01
+        @cpu.adc(0x02, :imm)
+        @cpu.a.should == 0x04
+        @cpu.v.should == 0x0 #overflow
+        @cpu.z.should == 0x0 #zero
+        @cpu.c.should == 0x0 #carry
+        @cpu.n.should == 0x0 #negative
+      end
+      it "adc 1" do
+        @cpu.v = 0x1
+        @cpu.z = 0x1
+        @cpu.c = 0x0
+        @cpu.n = 0x1
+
+        @cpu.a = 0x0a
+        @cpu.adc(0xff, :imm)
+        @cpu.a.should == 0x09
+        @cpu.v.should == 0x0 #overflow
+        @cpu.z.should == 0x0 #zero
+        @cpu.c.should == 0x1 #carry
+        @cpu.n.should == 0x0 #negative
+      end
+      it "adc 2" do
+        @cpu.v = 0x0
+        @cpu.z = 0x1
+        @cpu.c = 0x1
+        @cpu.n = 0x0
+
+        @cpu.a = 0x70
+        @cpu.adc(0x70, :imm)
+        @cpu.a.should == 0xe1
+        @cpu.v.should == 0x1 #overflow
+        @cpu.z.should == 0x0 #zero
+        @cpu.c.should == 0x0 #carry
+        @cpu.n.should == 0x1 #negative
+      end
+      it "adc 3" do
+        @cpu.v = 0x0
+        @cpu.z = 0x1
+        @cpu.c = 0x0
+        @cpu.n = 0x1
+
+        @cpu.a = 0x80
+        @cpu.adc(0x90, :imm)
+        @cpu.a.should == 0x10
+        @cpu.v.should == 0x1 #overflow
+        @cpu.z.should == 0x0 #zero
+        @cpu.c.should == 0x1 #carry
+        @cpu.n.should == 0x0 #negative
+      end
+      it "adc 4" do
+        @cpu.v = 0x1
+        @cpu.z = 0x1
+        @cpu.c = 0x0
+        @cpu.n = 0x0
+
+        @cpu.a = 0xf0
+        @cpu.adc(0xf0, :imm)
+        @cpu.a.should == 0xe0
+        @cpu.v.should == 0x0 #overflow
+        @cpu.z.should == 0x0 #zero
+        @cpu.c.should == 0x1 #carry
+        @cpu.n.should == 0x1 #negative
+      end
+      it "adc 5" do
+        @cpu.v = 0x0
+        @cpu.z = 0x1
+        @cpu.c = 0x1
+        @cpu.n = 0x1
+
+        @cpu.a = 0x70
+        @cpu.adc(0x80, :imm)
+        @cpu.a.should == 0xf1
+        @cpu.v.should == 0x0 #overflow
+        @cpu.z.should == 0x0 #zero
+        @cpu.c.should == 0x0 #carry
+        @cpu.n.should == 0x1 #negative
+      end
+      it "adc 6" do
+        @cpu.v = 0x0
+        @cpu.z = 0x1
+        @cpu.c = 0x1
+        @cpu.n = 0x0
+
+        @cpu.a = 0x70
+        @cpu.adc(0x0f, :imm)
+        @cpu.a.should == 0x80
+        @cpu.v.should == 0x1 #overflow
+        @cpu.z.should == 0x0 #zero
+        @cpu.c.should == 0x0 #carry
+        @cpu.n.should == 0x1 #negative
+      end
+      it "adc 7" do
+        @cpu.v = 0x0
+        @cpu.z = 0x0
+        @cpu.c = 0x0
+        @cpu.n = 0x1
+
+        @cpu.a = 0x80
+        @cpu.adc(0x80, :imm)
+        @cpu.a.should == 0x00
+        @cpu.v.should == 0x1 #overflow
+        @cpu.z.should == 0x1 #zero
+        @cpu.c.should == 0x1 #carry
+        @cpu.n.should == 0x0 #negative
+      end
+      it "adc 8" do
+        @cpu.v = 0x0
+        @cpu.z = 0x0
+        @cpu.c = 0x1
+        @cpu.n = 0x1
+
+        @cpu.a = 0x7f
+        @cpu.adc(0x80, :imm)
+        @cpu.a.should == 0x00
+        @cpu.v.should == 0x0 #overflow
+        @cpu.z.should == 0x1 #zero
+        @cpu.c.should == 0x1 #carry
+        @cpu.n.should == 0x0 #negative
+      end
     end
-    it "adc 1" do
-      @cpu.v = 0x1
-      @cpu.z = 0x1
-      @cpu.c = 0x0
-      @cpu.n = 0x1
+    
+    describe "SBC sets flags" do
+      it "sbc 0" do
+        @cpu.z = 0
+        @cpu.c = 1
 
-      @cpu.a = 0x0a
-      @cpu.adc(0xff, :imm)
-      @cpu.v.should == 0x0 #overflow
-      @cpu.z.should == 0x0 #zero
-      @cpu.c.should == 0x1 #carry
-      @cpu.n.should == 0x0 #negative
-    end
-    it "adc 2" do
-      @cpu.v = 0x0
-      @cpu.z = 0x1
-      @cpu.c = 0x1
-      @cpu.n = 0x0
+        @cpu.a = 0x10
+        @cpu.sbc(0x10, :imm)
+        @cpu.a.should == 0x0
+        @cpu.z.should == 0x1
+        @cpu.c.should == 1
+        @cpu.v.should == 0
+        @cpu.n.should == 0
+      end
+      it "sbc 1" do
+        @cpu.z = 1
+        @cpu.c = 1
 
-      @cpu.a = 0x70
-      @cpu.adc(0x70, :imm)
-      @cpu.v.should == 0x1 #overflow
-      @cpu.z.should == 0x0 #zero
-      @cpu.c.should == 0x0 #carry
-      @cpu.n.should == 0x1 #negative
-    end
-    it "adc 3" do
-      @cpu.v = 0x0
-      @cpu.z = 0x1
-      @cpu.c = 0x0
-      @cpu.n = 0x1
+        @cpu.a = 0x00
+        @cpu.sbc(0x01, :imm)
+        @cpu.a.should == 0xff
+        @cpu.z.should == 0
+        @cpu.c.should == 0
+        @cpu.v.should == 0
+        @cpu.n.should == 1
+      end
+      it "sbc 2" do
+        @cpu.z = 1
+        @cpu.c = 1
 
-      @cpu.a = 0x80
-      @cpu.adc(0x90, :imm)
-      @cpu.v.should == 0x1 #overflow
-      @cpu.z.should == 0x0 #zero
-      @cpu.c.should == 0x1 #carry
-      @cpu.n.should == 0x0 #negative
-    end
-    it "adc 4" do
-      @cpu.v = 0x1
-      @cpu.z = 0x1
-      @cpu.c = 0x0
-      @cpu.n = 0x0
+        @cpu.a = 0x80
+        @cpu.sbc(0x01, :imm)
+        @cpu.a.should == 0x7f
+        @cpu.z.should == 0
+        @cpu.c.should == 1
+        @cpu.v.should == 1
+        @cpu.n.should == 0
+      end
+      it "sbc 3" do
+        @cpu.z = 1
+        @cpu.c = 1
 
-      @cpu.a = 0xf0
-      @cpu.adc(0xf0, :imm)
-      @cpu.v.should == 0x0 #overflow
-      @cpu.z.should == 0x0 #zero
-      @cpu.c.should == 0x1 #carry
-      @cpu.n.should == 0x1 #negative
-    end
-    it "adc 5" do
-      @cpu.v = 0x0
-      @cpu.z = 0x1
-      @cpu.c = 0x1
-      @cpu.n = 0x1
+        @cpu.a = 0x7f
+        @cpu.sbc(0xff, :imm)
+        @cpu.a.should == 0x80
+        @cpu.z.should == 0
+        @cpu.c.should == 0
+        @cpu.v.should == 1
+        @cpu.n.should == 1
+      end
+      it "sbc 4" do
+        @cpu.z = 1
+        @cpu.c = 1
 
-      @cpu.a = 0x70
-      @cpu.adc(0x80, :imm)
-      @cpu.v.should == 0x0 #overflow
-      @cpu.z.should == 0x0 #zero
-      @cpu.c.should == 0x0 #carry
-      @cpu.n.should == 0x1 #negative
-      @cpu.a.should == 0xf1
-    end
-    it "adc 6" do
-      @cpu.v = 0x0
-      @cpu.z = 0x1
-      @cpu.c = 0x1
-      @cpu.n = 0x0
+        @cpu.a = 0x00
+        @cpu.sbc(0x00, :imm)
+        @cpu.a.should == 0x00
+        @cpu.z.should == 1
+        @cpu.c.should == 1
+        @cpu.v.should == 0
+        @cpu.n.should == 0
+      end
+      it "sbc 5" do
+        @cpu.z = 1
+        @cpu.c = 0
 
-      @cpu.a = 0x70
-      @cpu.adc(0x0f, :imm)
-      @cpu.v.should == 0x1 #overflow
-      @cpu.z.should == 0x0 #zero
-      @cpu.c.should == 0x0 #carry
-      @cpu.n.should == 0x1 #negative
-      @cpu.a.should == 0x80
-    end
-    it "adc 7" do
-      @cpu.v = 0x0
-      @cpu.z = 0x0
-      @cpu.c = 0x0
-      @cpu.n = 0x1
-
-      @cpu.a = 0x80
-      @cpu.adc(0x80, :imm)
-      @cpu.v.should == 0x1 #overflow
-      @cpu.z.should == 0x1 #zero
-      @cpu.c.should == 0x1 #carry
-      @cpu.n.should == 0x0 #negative
-      @cpu.a.should == 0x00
+        @cpu.a = 0x00
+        @cpu.sbc(0x00, :imm)
+        @cpu.a.should == 0xff
+        @cpu.z.should == 0
+        @cpu.c.should == 0
+        @cpu.v.should == 0
+        @cpu.n.should == 1
+      end
     end
   end
   describe "Cpu Instructions" do
     before(:each) do
       @mem = Memory.new
       @cpu = Cpu.new(@mem)
-    end
-    # TODO
-    it "sets cpu flags" do
-      pending("not yet done")
     end
     # TODO
     it "obeys the decimal flag" do
@@ -274,14 +366,16 @@ module R6502
     # DEPENDS ON DECIMAL FLAG
     # TODO
     it "sbc" do
+      @cpu.c = 1
       @cpu.a = 0x10
       @mem.set(0x100, 0x0a)
       @cpu.sbc(0x100, :abs)
       @cpu.a.should == 0x06
 
+      @cpu.c = 0
       @cpu.a = 0x10
       @cpu.sbc(0x0a, :imm)
-      @cpu.a.should == 0x06
+      @cpu.a.should == 0x05
     end
     it "nop" do
       @cpu.nop(nil, :imp)

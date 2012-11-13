@@ -7,9 +7,23 @@ module R6502
       x = @a
       y = arg
       r = x + y + @c
-      @a = r&0xff
-      @v = (((0x7f&x) + (0x7f&y) + @c)>>7) ^ ((x + y)>>8)
+      @a = 0xff & r
+      @v = (((0x7f&x) + (0x7f&y) + @c)>>7) ^ ((x + y + @c)>>8)
       @z = (r&0xff).zero? ? 1 : 0
+      @c = r > 255 ? 1 : 0
+      @n = (0x80&r)>>7
+    end
+    # subtract with carry
+    # DEPENDS ON DECIMAL FLAG
+    # TODO
+    def sbc(arg, mode)
+      x = @a
+      y = mode == :imm ? arg : @mem.get(arg)
+      y = (y^0xff)
+      r = x + y + @c
+      @a = 0xff & r
+      @v = (((0x7f&x) + (0x7f&y) + @c)>>7) ^ ((x + y + @c)>>8)
+      @z = (0xff&r).zero? ? 1 : 0
       @c = r > 255 ? 1 : 0
       @n = (0x80&r)>>7
     end
@@ -107,19 +121,6 @@ module R6502
         val = @mem.get(arg)
         val = (val>>1) | ((0x01 & val)<<7)
         @mem.set(arg, val)
-      end
-    end
-    # subtract with carry
-    # DEPENDS ON DECIMAL FLAG
-    # TODO
-    def sbc(arg, mode)
-      case mode
-      when :imm
-        val = arg
-        @a = (0xff & (@a - val))
-      else
-        val = @mem.get( arg )
-        @a = (0xff & (@a - val))
       end
     end
     # no operation
