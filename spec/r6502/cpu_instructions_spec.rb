@@ -329,12 +329,6 @@ module R6502
       @mem = Memory.new
       @cpu = Cpu.new(@mem)
     end
-    # TODO
-    it "obeys the decimal flag" do
-      pending("not yet done")
-    end
-    # DEPENDS ON DECIMAL FLAG
-    # TODO
     it "adc" do
       @cpu.a = 0x02
       @cpu.adc(0x01, :imm)
@@ -348,13 +342,45 @@ module R6502
       @cpu.a = 0xab
       @cpu.and(0x0f, :imm)
       @cpu.a.should == 0x0b
+      @cpu.z.should == 0
+      @cpu.n.should == 0
+
+      @cpu.a = 0xff
+      @mem.set(0x0010, 0x00)
+      @cpu.and(0x10, :zp)
+      @cpu.a.should == 0x00
+      @cpu.z.should == 1
+      @cpu.n.should == 0
+
+      @cpu.a = 0xff
+      @mem.set(0x00f0, 0xff)
+      @cpu.and(0xf0, :zp)
+      @cpu.a.should == 0xff
+      @cpu.z.should == 0
+      @cpu.n.should == 1
     end
     it "asl" do
       @cpu.a = 0x01
       @cpu.asl(nil, :acc)
       @cpu.a.should == 0x02
+      @cpu.z.should == 0
+      @cpu.n.should == 0
+
       @cpu.asl(nil, :acc)
-      @cpu.a.should == 0x04
+      @cpu.asl(nil, :acc)
+      @cpu.asl(nil, :acc)
+      @cpu.asl(nil, :acc)
+      @cpu.asl(nil, :acc)
+      @cpu.asl(nil, :acc)
+      @cpu.a.should == 0x80
+      @cpu.n.should == 1
+      @cpu.c.should == 0
+
+      @cpu.asl(nil, :acc)
+      @cpu.a.should == 0x00
+      @cpu.z.should == 1
+      @cpu.n.should == 0
+      @cpu.c.should == 1
 
       @mem.set(0x2010, 0x04)
       @cpu.asl(0x2010, :abs)
@@ -380,18 +406,52 @@ module R6502
       @mem.set(0x4010, 0x02)
       @cpu.dec(0x4010, :abs)
       @mem.get(0x4010).should == 0x01
+      @cpu.z.should == 0
+      @cpu.n.should == 0
+
       @cpu.dec(0x4010, :abs)
       @mem.get(0x4010).should == 0x00
+      @cpu.z.should == 1
+      @cpu.n.should == 0
+
+      @cpu.dec(0x4010, :abs)
+      @mem.get(0x4010).should == 0xff
+      @cpu.z.should == 0
+      @cpu.n.should == 1
     end
     it "dex" do
-      @cpu.x = 0x10
+      @cpu.x = 0x02
       @cpu.dex(nil, :imp)
-      @cpu.x.should == 0x0f
+      @cpu.x.should == 0x01
+      @cpu.z.should == 0
+      @cpu.n.should == 0
+
+      @cpu.dex(nil, :imp)
+      @cpu.x.should == 0x00
+      @cpu.z.should == 1
+      @cpu.n.should == 0
+
+      @cpu.dex(nil, :imp)
+      @cpu.x.should == 0xff
+      @cpu.z.should == 0
+      @cpu.n.should == 1
     end
     it "dey" do
-      @cpu.y = 0x0f
+      @cpu.y = 0x02
       @cpu.dey(nil, :imp)
-      @cpu.y.should == 0x0e
+      @cpu.y.should == 0x01
+      @cpu.z.should == 0
+      @cpu.n.should == 0
+
+      @cpu.dey(nil, :imp)
+      @cpu.y.should == 0x00
+      @cpu.z.should == 1
+      @cpu.n.should == 0
+
+      @cpu.dey(nil, :imp)
+      @cpu.y.should == 0xff
+      @cpu.z.should == 0
+      @cpu.n.should == 1
     end
     it "eor" do
       @mem.set(0x1000, 0x05)
@@ -402,6 +462,17 @@ module R6502
       @cpu.a = 0x06
       @cpu.eor(0x05, :imm)
       @cpu.a.should == 0x03
+
+      @cpu.a = 0x01
+      @cpu.eor(0x01, :imm)
+      @cpu.a.should == 0x00
+      @cpu.z.should == 1
+      @cpu.n.should == 0
+
+      @cpu.eor(0x80, :imm)
+      @cpu.a.should == 0x80
+      @cpu.z.should == 0
+      @cpu.n.should == 1
     end
     it "inc" do
       @mem.set(0x2000, 0x0f)
@@ -409,6 +480,22 @@ module R6502
       @mem.get(0x2000).should == 0x10
       @cpu.inc(0x2000, :abs)
       @mem.get(0x2000).should == 0x11
+
+      @mem.set(0x00f0, 0xfe)
+      @cpu.inc(0xf0, :zp)
+      @mem.get(0x00f0).should == 0xff
+      @cpu.z.should == 0
+      @cpu.n.should == 1
+      
+      @cpu.inc(0xf0, :zp)
+      @mem.get(0x00f0).should == 0x00
+      @cpu.z.should == 1
+      @cpu.n.should == 0
+
+      @cpu.inc(0xf0, :zp)
+      @mem.get(0x00f0).should == 0x01
+      @cpu.z.should == 0
+      @cpu.n.should == 0
     end
     it "inx" do
       @cpu.x = 0x00
@@ -416,6 +503,17 @@ module R6502
       @cpu.x.should == 0x01
       @cpu.inx(nil, :imp)
       @cpu.x.should == 0x02
+
+      @cpu.x = 0xfe
+      @cpu.inx(nil, :imp)
+      @cpu.x.should == 0xff
+      @cpu.z.should == 0
+      @cpu.n.should == 1
+
+      @cpu.inx(nil, :imp)
+      @cpu.x.should == 0x00
+      @cpu.z.should == 1
+      @cpu.n.should == 0
     end
     it "iny" do
       @cpu.y = 0x03
@@ -423,6 +521,17 @@ module R6502
       @cpu.y.should == 0x04
       @cpu.iny(nil, :imp)
       @cpu.y.should == 0x05
+
+      @cpu.y = 0xfe
+      @cpu.iny(nil, :imp)
+      @cpu.y.should == 0xff
+      @cpu.z.should == 0
+      @cpu.n.should == 1
+
+      @cpu.iny(nil, :imp)
+      @cpu.y.should == 0x00
+      @cpu.z.should == 1
+      @cpu.n.should == 0
     end
     it "lsr" do
       @cpu.a = 0x05
@@ -434,6 +543,26 @@ module R6502
       @mem.set(0x1010, 0x07)
       @cpu.lsr(0x1010, :abs)
       @mem.get(0x1010).should == 0x03
+
+      @cpu.a = 0x02
+      @cpu.lsr(nil, :acc)
+      @cpu.a.should == 0x01
+      @cpu.c.should == 0
+      @cpu.z.should == 0
+      @cpu.n.should == 0
+
+      @cpu.lsr(nil, :acc)
+      @cpu.a.should == 0x00
+      @cpu.c.should == 1
+      @cpu.z.should == 1
+      @cpu.n.should == 0
+
+      @cpu.a = 0xff
+      @cpu.lsr(nil, :acc)
+      @cpu.a.should == 0x7f
+      @cpu.c.should == 1
+      @cpu.z.should == 0
+      @cpu.n.should == 0
     end
     it "ora" do
       @cpu.a = 0x05
@@ -444,45 +573,92 @@ module R6502
       @cpu.a = 0x05
       @cpu.ora(0x06, :imm)
       @cpu.a.should == 0x07
+
+      @cpu.a = 0x01
+      @mem.set(0x0040, 0x80)
+      @cpu.ora(0x40, :zp)
+      @cpu.a.should == 0x81
+      @cpu.z.should == 0
+      @cpu.n.should == 1
+
+      @cpu.a = 0x00
+      @mem.set(0x0040, 0x00)
+      @cpu.ora(0x40, :zp)
+      @cpu.a.should == 0x00
+      @cpu.z.should == 1
+      @cpu.n.should == 0
     end
     it "rol" do
       @cpu.a = 0x80
       @cpu.rol(nil, :acc)
-      @cpu.a.should == 0x01
+      @cpu.a.should == 0x00
+      @cpu.c.should == 1
       @cpu.rol(nil, :acc)
-      @cpu.a.should == 0x02
+      @cpu.a.should == 0x01
+      @cpu.c.should == 0
 
-      @mem.set(0x900, 0x80)
+      @mem.set(0x900, 0x40)
       @cpu.rol(0x900, :abs)
-      @mem.get(0x900).should == 0x01
+      @mem.get(0x900).should == 0x80
+      @cpu.c.should == 0
+      @cpu.z.should == 0
+      @cpu.n.should == 1
       @cpu.rol(0x900, :abs)
-      @mem.get(0x900).should == 0x02
+      @mem.get(0x900).should == 0x00
+      @cpu.c.should == 1
+      @cpu.z.should == 1
+      @cpu.n.should == 0
     end
     it "ror" do
       @cpu.a = 0x01
       @cpu.ror(nil, :acc)
-      @cpu.a.should == 0x80
+      @cpu.a.should == 0x00
+      @cpu.z.should == 1
+      @cpu.c.should == 1
+      @cpu.n.should == 0
       @cpu.ror(nil, :acc)
-      @cpu.a.should == 0x40
+      @cpu.a.should == 0x80
+      @cpu.z.should == 0
+      @cpu.c.should == 0
+      @cpu.n.should == 1
 
-      @mem.set(0x900, 0x01)
+      @cpu.c = 1
+      @mem.set(0x900, 0x80)
       @cpu.ror(0x900, :abs)
-      @mem.get(0x900).should == 0x80
+      @mem.get(0x900).should == 0xc0
+      @cpu.c.should == 0
+      @cpu.z.should == 0
+      @cpu.n.should == 1
       @cpu.ror(0x900, :abs)
-      @mem.get(0x900).should == 0x40
+      @mem.get(0x900).should == 0x60
+      @cpu.c.should == 0
+      @cpu.z.should == 0
+      @cpu.n.should == 0
     end
     it "inx" do
-      @cpu.x = 0x01
+      @cpu.x = 0x81
       @cpu.inx(nil, :imp)
-      @cpu.x.should == 0x02
+      @cpu.x.should == 0x82
+      @cpu.z.should == 0
+      @cpu.n.should == 1
+
+      @cpu.x = 0xff
+      @cpu.inx(nil, :imp)
+      @cpu.x.should == 0x00
+      @cpu.z.should == 1
+      @cpu.n.should == 0
     end
     it "iny" do
       @cpu.y = 0x02
       @cpu.iny(nil, :imp)
       @cpu.y.should == 0x03
+
+      @cpu.y = 0xff
+      @cpu.iny(nil, :imp)
+      @cpu.y.should == 0x00
+      @cpu.z.should == 1
+      @cpu.n.should == 0
     end
-    # DEPENDS ON DECIMAL FLAG
-    # TODO
     it "sbc" do
       @cpu.c = 1
       @cpu.a = 0x10
@@ -601,7 +777,29 @@ module R6502
       @cpu.bvs(0x10, :rel)
       @cpu.pc.should == 0x1012
     end
-    pending "brk" do
+    it "brk" do
+      @cpu.c = 1
+      @cpu.s = 0xff
+      @cpu.pc = 0xabcd
+      @mem.set(0xfffe, 0x40)
+      @mem.set(0xffff, 0x80)
+      @cpu.brk
+      @cpu.pc.should == 0x8040
+      @cpu.s.should == 0xfc
+      @mem.get(0x01ff).should == 0xab
+      @mem.get(0x01fe).should == 0xcd
+      @mem.get(0x01fd).should == 0b00110001
+    end
+    it "rti" do
+      @cpu.s = 0xfc
+      @mem.set(0x01fd, 0b10100001)
+      @mem.set(0x01fe, 0x80)
+      @mem.set(0x01ff, 0x40)
+      @cpu.rti
+      @cpu.c.should == 1
+      @cpu.n.should == 1
+      @cpu.v.should == 0
+      @cpu.pc.should == 0x8040
     end
     it "clc" do
       @cpu.c = 1
@@ -639,7 +837,6 @@ module R6502
       @cpu.clv
       @cpu.v.should == 0
     end
-    #TODO negative flag
     it "cmp" do
       @mem.set(0x1000, 0x10)
       @cpu.a = 0x20
@@ -649,6 +846,7 @@ module R6502
       @cpu.a.should == 0x20
       @cpu.c.should == 1
       @cpu.z.should == 0
+      @cpu.n.should == 0
 
       @cpu.a = 0x10
       @cpu.c = 0
@@ -657,8 +855,15 @@ module R6502
       @cpu.a.should == 0x10
       @cpu.c.should == 1
       @cpu.z.should == 1
+      @cpu.n.should == 0
+
+      @cpu.a = 0x90
+      @cpu.cmp(0x10, :imm)
+      @cpu.a.should == 0x90
+      @cpu.c.should == 1
+      @cpu.z.should == 0
+      @cpu.n.should == 1
     end
-    #TODO negative flag
     it "cpx" do
       @mem.set(0x1000, 0x10)
       @cpu.x = 0x20
@@ -676,8 +881,14 @@ module R6502
       @cpu.x.should == 0x10
       @cpu.c.should == 1
       @cpu.z.should == 1
+
+      @cpu.x = 0x00
+      @cpu.cpx(0x01, :imm)
+      @cpu.x.should == 0x00
+      @cpu.c.should == 0
+      @cpu.z.should == 0
+      @cpu.n.should == 1
     end
-    #TODO negative flag
     it "cpy" do
       @mem.set(0x1000, 0x10)
       @cpu.y = 0x20
@@ -695,6 +906,18 @@ module R6502
       @cpu.y.should == 0x10
       @cpu.c.should == 1
       @cpu.z.should == 1
+
+      @cpu.y = 0x00
+      @cpu.cpy(0x00, :imm)
+      @cpu.y.should == 0x00
+      @cpu.c.should == 1
+      @cpu.z.should == 1
+      @cpu.n.should == 0
+
+      @cpu.cpy(0x01, :imm)
+      @cpu.c.should == 0
+      @cpu.z.should == 0
+      @cpu.n.should == 1
     end
     it "jmp" do
       @cpu.pc = 0x1000
@@ -707,11 +930,20 @@ module R6502
       @cpu.jmp(0x2000, :ind)
       @cpu.pc.should == 0x1100
     end
-    pending "jsr" do
-      #need stack push instr first
+    it "jsr" do
+      @cpu.s = 0xff
+      @cpu.pc = 0x0600
+      @cpu.jsr(0x1000, :abs)
+      @mem.get(0x01ff).should == 0x06
+      @mem.get(0x01fe).should == 0x02
+      @cpu.pc.should == 0x1000
     end
-    pending "rts" do
-      #need stack pull instr first
+    it "rts" do
+      @cpu.s = 0xfd
+      @mem.set(0x01ff, 0xcd)
+      @mem.set(0x01fe, 0xab)
+      @cpu.rts
+      @cpu.pc.should == 0xabce
     end
     it "lda" do
       @cpu.a = 0x66
@@ -722,6 +954,14 @@ module R6502
       @mem.set( 0x1000, 0x44 )
       @cpu.lda(0x1000, :abs)
       @cpu.a.should == 0x44
+
+      @cpu.lda(0x00, :imm)
+      @cpu.z.should == 1
+      @cpu.n.should == 0
+
+      @cpu.lda(0xff, :imm)
+      @cpu.z.should == 0
+      @cpu.n.should == 1
     end
     it "ldx" do
       @cpu.x = 0x66
@@ -732,6 +972,14 @@ module R6502
       @mem.set( 0x1000, 0x44 )
       @cpu.ldx(0x1000, :abs)
       @cpu.x.should == 0x44
+
+      @cpu.ldx(0x00, :imm)
+      @cpu.z.should == 1
+      @cpu.n.should == 0
+
+      @cpu.ldx(0xff, :imm)
+      @cpu.z.should == 0
+      @cpu.n.should == 1
     end
     it "ldy" do
       @cpu.y = 0x66
@@ -742,6 +990,14 @@ module R6502
       @mem.set( 0x1000, 0x44 )
       @cpu.ldy(0x1000, :abs)
       @cpu.y.should == 0x44
+
+      @cpu.ldy(0x00, :imm)
+      @cpu.z.should == 1
+      @cpu.n.should == 0
+
+      @cpu.ldy(0xff, :imm)
+      @cpu.z.should == 0
+      @cpu.n.should == 1
     end
     it "pha" do
       @cpu.a = 0x33
@@ -757,6 +1013,20 @@ module R6502
       @cpu.pla()
       @cpu.a.should == 0x34
       @cpu.s.should == 0xff
+      @cpu.z.should == 0
+      @cpu.n.should == 0
+
+      @cpu.s = 0xfe
+      @mem.set(0x01ff, 0x00)
+      @cpu.pla
+      @cpu.z.should == 1
+      @cpu.n.should == 0
+
+      @cpu.s = 0xfe
+      @mem.set(0x01ff, 0x80)
+      @cpu.pla
+      @cpu.z.should == 0
+      @cpu.n.should == 1
     end
     it "php" do
       @cpu.c = 1
@@ -810,7 +1080,6 @@ module R6502
       @cpu.v.should == 1
       @cpu.n.should == 0
     end
-    pending "rti"
     it "sta" do
       @cpu.a = 0xfa
       @mem.set( 0x1000, 0xaf )
@@ -835,6 +1104,16 @@ module R6502
       @cpu.tax()
       @cpu.a.should == 0xbd
       @cpu.x.should == 0xbd
+
+      @cpu.a = 0x00
+      @cpu.tax
+      @cpu.z.should == 1
+      @cpu.n.should == 0
+
+      @cpu.a = 0x80
+      @cpu.tax
+      @cpu.z.should == 0
+      @cpu.n.should == 1
     end
     it "tay" do
       @cpu.y = 0xea
@@ -842,6 +1121,16 @@ module R6502
       @cpu.tay()
       @cpu.a.should == 0xbd
       @cpu.y.should == 0xbd
+
+      @cpu.a = 0x00
+      @cpu.tay
+      @cpu.z.should == 1
+      @cpu.n.should == 0
+
+      @cpu.a = 0x80
+      @cpu.tay
+      @cpu.z.should == 0
+      @cpu.n.should == 1
     end
     it "tsx" do
       @cpu.x = 0xea
@@ -849,6 +1138,16 @@ module R6502
       @cpu.tsx()
       @cpu.s.should == 0xbd
       @cpu.x.should == 0xbd
+
+      @cpu.s = 0x00
+      @cpu.tsx
+      @cpu.z.should == 1
+      @cpu.n.should == 0
+
+      @cpu.s = 0x80
+      @cpu.tsx
+      @cpu.z.should == 0
+      @cpu.n.should == 1
     end
     it "txa" do
       @cpu.a = 0xea
@@ -856,6 +1155,16 @@ module R6502
       @cpu.txa()
       @cpu.x.should == 0xbd
       @cpu.a.should == 0xbd
+
+      @cpu.x = 0x00
+      @cpu.txa
+      @cpu.z.should == 1
+      @cpu.n.should == 0
+
+      @cpu.x = 0x80
+      @cpu.txa
+      @cpu.z.should == 0
+      @cpu.n.should == 1
     end
     it "txs" do
       @cpu.s = 0xea
@@ -870,6 +1179,16 @@ module R6502
       @cpu.tya()
       @cpu.y.should == 0xbd
       @cpu.a.should == 0xbd
+
+      @cpu.y = 0x00
+      @cpu.tya
+      @cpu.z.should == 1
+      @cpu.n.should == 0
+
+      @cpu.y = 0x80
+      @cpu.tya
+      @cpu.z.should == 0
+      @cpu.n.should == 1
     end
   end
 end
