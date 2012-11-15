@@ -1,3 +1,14 @@
+# Update: 14 November 2012
+It works. [See my blog post](http://0xfffc.tumblr.com/post/35751220092/6502-assembler-and-simulator-in-ruby)
+
+It probably bears no resemblance to the JS code
+which inspired the project, so don't get confused
+by that.
+
+Also, the code (and especially the specs) need
+cleanup and refactoring, so don't judge. :)
+
+# Original intro:
 Work-in-progress assembler and simulator of the 6502,
 written in Ruby.
 
