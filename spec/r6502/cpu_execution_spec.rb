@@ -45,8 +45,7 @@ module R6502
       @cpu.y = 0xb0
       @cpu.decode_arg(:zpy, 0x0f, 0x66).should == 0xbf
       # RELATIVE
-      @cpu.pc = 0x100      #normally, pc inc'd during exectn and result
-      @cpu.decode_arg(:rel, 0x80, 0x66).should == 0x180  #would be 0x182
+      @cpu.decode_arg(:rel, 0xff, 0x66).should == -1
       # ABSOLUTE
       @cpu.decode_arg(:abs, 0xff, 0x66).should == 0x66ff
         # ABSX
