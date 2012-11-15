@@ -251,7 +251,7 @@ module R6502
     end
     def bne(arg, mode)
       inc_pc_by_mode(:rel)
-      @pc += arg if @z == 1
+      @pc += arg if @z == 0
     end
     def bpl(arg, mode)
       inc_pc_by_mode(:rel)

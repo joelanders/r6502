@@ -779,12 +779,12 @@ module R6502
     end
     it "bne" do
       @cpu.pc = 0x1000
-      @cpu.z  = 0
+      @cpu.z  = 1
       @cpu.bne(0x10, :rel)
       @cpu.pc.should == 0x1002
 
       @cpu.pc = 0x1000
-      @cpu.z  = 1
+      @cpu.z  = 0
       @cpu.bne(0x10, :rel)
       @cpu.pc.should == 0x1012
     end
