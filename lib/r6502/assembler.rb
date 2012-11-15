@@ -111,7 +111,7 @@ module R6502
       # These instructions take 1 byte.
       if [:imm,  :zp,   :zpx,  :zpy,
           :indx, :indy, :rel].include?(mode)
-        (number <= 0xff) || (raise 'number too big')
+        (number <= 0xff) || (raise "#{command}'s number too big")
         return bytes << number
       # These instructions take 2 bytes.
       elsif [:abs, :absx, :absy, :ind].include?(mode)
