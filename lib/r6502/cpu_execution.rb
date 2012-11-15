@@ -21,10 +21,9 @@ module R6502
       instr, mode = instr_mode( mem.get(pc) )
       arg = decode_arg( mode, mem.get(pc+1), mem.get(pc+2) )
 
+      puts "instr: #{instr} at pc 0x#{pc.to_s(16)} with arg #{arg.to_i.to_s(16)}"
       method( instr ).call( arg, mode )
-      puts "i: #{instr} m: #{mode} a: #{arg.to_i.to_s(16)}"
-      puts "pc: #{pc.to_s(16)} x: #{x.to_s(16)} z: #{z.to_s(16)}"
-      puts "n: #{n.to_s(16)} c: #{c.to_s(16)} z: #{z.to_s(16)}"
+      puts " a: #{a.to_s(16)} x: #{x.to_s(16)} y: #{y.to_s(16)} z: #{z.to_s(16)} n: #{n.to_s(16)} c: #{c.to_s(16)}"
       puts "==="
     end
     def decode_arg(mode, sec_word, thd_word)
