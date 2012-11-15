@@ -21,6 +21,7 @@ module R6502
         @a = r + 6*((r/10).floor)
         @n = (0x80&@a)>>7
       end
+      inc_pc_by_mode(mode)
     end
     # subtract with carry
     def sbc(arg, mode)
@@ -44,6 +45,7 @@ module R6502
         @a = r + 6*((r/10).floor)
         @n = (0x80&@a)>>7
       end
+      inc_pc_by_mode(mode)
     end
     # logical and
     def and(arg, mode)
@@ -55,6 +57,7 @@ module R6502
       end
       @z = @a.zero? ? 1 : 0
       @n = @a>>7
+      inc_pc_by_mode(mode)
     end
     # shift left
     def asl(arg, mode)
@@ -72,6 +75,7 @@ module R6502
         @n = r>>7
         @c = r > 0xff ? 1 : 0
       end
+      inc_pc_by_mode(mode)
     end
     # logical and (result discarded)
     def bit(arg, mode)
@@ -81,6 +85,7 @@ module R6502
       @z = result.zero? ? 1 : 0
       @v = (m & 0x40)>>6
       @n = (m & 0x80)>>7
+      inc_pc_by_mode(mode)
     end
     # decrement (memory)
     def dec(arg, mode)
@@ -88,6 +93,7 @@ module R6502
       @mem.set( arg, r&0xff )
       @z = r.zero? ? 1 : 0
       @n = (r&0x80)>>7
+      inc_pc_by_mode(mode)
     end
     # decrement (x)
     def dex(arg, mode)
@@ -95,6 +101,7 @@ module R6502
       @x = r&0xff
       @z = @x.zero? ? 1 : 0
       @n = (@x&0x80)>>7
+      inc_pc_by_mode(mode)
     end
     # decrement (y)
     def dey(arg, mode)
@@ -102,6 +109,7 @@ module R6502
       @y = r&0xff
       @z = @y.zero? ? 1 : 0
       @n = (@y&0x80)>>7
+      inc_pc_by_mode(mode)
     end
     # exclusive or
     def eor(arg, mode)
@@ -113,6 +121,7 @@ module R6502
       end
       @z = @a.zero? ? 1 : 0
       @n = (@a&0x80)>>7
+      inc_pc_by_mode(mode)
     end
     # increment (memory)
     def inc(arg, mode)
@@ -120,6 +129,7 @@ module R6502
       @mem.set( arg, r )
       @z = r.zero? ? 1 : 0
       @n = (r&0x80)>>7
+      inc_pc_by_mode(mode)
     end
     # increment (x)
     def inx(arg, mode)
@@ -127,6 +137,7 @@ module R6502
       @x = r
       @z = r.zero? ? 1 : 0
       @n = (r&0x80)>>7
+      inc_pc_by_mode(mode)
     end
     # increment (y)
     def iny(arg, mode)
@@ -134,6 +145,7 @@ module R6502
       @y = r
       @z = r.zero? ? 1 : 0
       @n = (r&0x80)>>7
+      inc_pc_by_mode(mode)
     end
     # shift right
     def lsr(arg, mode)
@@ -151,6 +163,7 @@ module R6502
         @n = (r&0x80)>>7
         @mem.set( arg, r )
       end
+      inc_pc_by_mode(mode)
     end
     # inclusive or
     def ora(arg, mode)
@@ -162,6 +175,7 @@ module R6502
       end
       @z = @a.zero? ? 1 : 0
       @n = (@a&0x80)>>7
+      inc_pc_by_mode(mode)
     end
     # rotate left
     def rol(arg, mode)
@@ -181,6 +195,7 @@ module R6502
         @n = (r&0x80)>>7
         @mem.set(arg, r)
       end
+      inc_pc_by_mode(mode)
     end
     # rotate right
     def ror(arg, mode)
@@ -200,19 +215,23 @@ module R6502
         @z = r.zero? ? 1 : 0
         @n = (r&0x80)>>7
       end
+      inc_pc_by_mode(mode)
     end
     # no operation
     def nop(arg, mode)
-      @pc += 1
+      inc_pc_by_mode(mode)
     end
     def sec(arg, mode)
       @c = 1
+      inc_pc_by_mode(mode)
     end
     def sed(arg, mode)
       @d = 1
+      inc_pc_by_mode(mode)
     end
     def sei(arg, mode)
       @i = 1
+      inc_pc_by_mode(mode)
     end
     def bcc(arg, mode)
       inc_pc_by_mode(:rel)
@@ -246,17 +265,21 @@ module R6502
       inc_pc_by_mode(:rel)
       @pc += arg if @v == 1
     end
-    def clc()
+    def clc(arg, mode)
       @c = 0
+      inc_pc_by_mode(mode)
     end
-    def cld()
+    def cld(arg, mode)
       @d = 0
+      inc_pc_by_mode(mode)
     end
-    def cli()
+    def cli(arg, mode)
       @i = 0
+      inc_pc_by_mode(mode)
     end
-    def clv()
+    def clv(arg, mode)
       @v = 0
+      inc_pc_by_mode(mode)
     end
     def cmp(arg, mode)
       case mode
@@ -272,6 +295,7 @@ module R6502
         @z = result == 0 ? 1 : 0
         @n = (0xff&result)>>7
       end
+      inc_pc_by_mode(mode)
     end
     def cpx(arg, mode)
       case mode
@@ -287,6 +311,7 @@ module R6502
         @z = result == 0 ? 1 : 0
         @n = (0xff&result)>>7
       end
+      inc_pc_by_mode(mode)
     end
     def cpy(arg, mode)
       case mode
@@ -302,6 +327,7 @@ module R6502
         @z = result == 0 ? 1 : 0
         @n = (0xff&result)>>7
       end
+      inc_pc_by_mode(mode)
     end
     def jmp(arg, mode)
       case mode
@@ -322,6 +348,7 @@ module R6502
       end
       @z = @a.zero? ? 1 : 0
       @n = (0x80&@a)>>7
+      inc_pc_by_mode(mode)
     end
     def ldx(arg, mode)
       case mode
@@ -332,6 +359,7 @@ module R6502
       end
       @z = @x.zero? ? 1 : 0
       @n = (0x80&@x)>>7
+      inc_pc_by_mode(mode)
     end
     def ldy(arg, mode)
       case mode
@@ -342,20 +370,23 @@ module R6502
       end
       @z = @y.zero? ? 1 : 0
       @n = (0x80&@y)>>7
+      inc_pc_by_mode(mode)
     end
-    def pha()
+    def pha(arg, mode)
       addr = 0x0100 + (0xff & @s)
       @mem.set( addr, @a )
       @s -= 1
+      inc_pc_by_mode(mode)
     end
-    def pla()
+    def pla(arg, mode)
       addr = 0x0100 + (0xff & (@s + 1))
       @a = @mem.get( addr )
       @s += 1
       @z = @a.zero? ? 1 : 0
       @n = (0x80&@a)>>7
+      inc_pc_by_mode(mode)
     end
-    def php()
+    def php(arg, mode)
       addr = 0x0100 + (0xff & @s)
       val =            @n #bit 7
       val = (val<<1) + @v #bit 6
@@ -368,8 +399,9 @@ module R6502
 
       @mem.set( addr, val )
       @s -= 1
+      inc_pc_by_mode(mode)
     end
-    def plp()
+    def plp(arg, mode)
       addr = 0x0100 + (0xff & (@s + 1))
       val = @mem.get( addr )
       @c = 0x1 & val
@@ -380,43 +412,53 @@ module R6502
       # bit 5
       @v = 0x1 & (val>>6)
       @n = 0x1 & (val>>7)
+      inc_pc_by_mode(mode)
     end
     def sta(arg, mode)
       @mem.set( arg, @a )
+      inc_pc_by_mode(mode)
     end
     def stx(arg, mode)
       @mem.set( arg, @x )
+      inc_pc_by_mode(mode)
     end
     def sty(arg, mode)
       @mem.set( arg, @y )
+      inc_pc_by_mode(mode)
     end
-    def tax()
+    def tax(arg, mode)
       @x = @a
       @z = @x.zero? ? 1 : 0
       @n = (0x80&@x)>>7
+      inc_pc_by_mode(mode)
     end
-    def tay()
+    def tay(arg, mode)
       @y = @a
       @z = @y.zero? ? 1 : 0
       @n = (0x80&@y)>>7
+      inc_pc_by_mode(mode)
     end
-    def tsx()
+    def tsx(arg, mode)
       @x = @s
       @z = @x.zero? ? 1 : 0
       @n = (0x80&@x)>>7
+      inc_pc_by_mode(mode)
     end
-    def txa()
+    def txa(arg, mode)
       @a = @x
       @z = @a.zero? ? 1 : 0
       @n = (0x80&@a)>>7
+      inc_pc_by_mode(mode)
     end
-    def txs()
+    def txs(arg, mode)
       @s = @x
+      inc_pc_by_mode(mode)
     end
-    def tya()
+    def tya(arg, mode)
       @a = @y
       @z = @a.zero? ? 1 : 0
       @n = (0x80&@a)>>7
+      inc_pc_by_mode(mode)
     end
     def brk()
       @mem.set(0x0100 + @s, @pc>>8)
