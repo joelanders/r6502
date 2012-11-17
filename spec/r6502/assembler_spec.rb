@@ -13,6 +13,14 @@ module R6502
         @mem.get_range(0x600, 0x602).should == [0xad, 0x00, 0x20]
         @mem.get_range(0x603, 0x606).should == [0xea, 0x4c, 0x03, 0x06]
       end
+      it "handles relative addressing correctly (negative)" do
+        @asm.process_file("ldx \#$04\nloop dex\nbne loop")
+        @mem.get_range(0x600, 0x604).should == [0xa2, 0x04, 0xca, 0xd0, 0xfd]
+      end
+      it "handles relative addressing correctly (positive)" do
+        @asm.process_file("ldx \#$04\nbne finish\nnop\nnop\nfinish")
+        @mem.get_range(0x600, 0x605).should == [0xa2, 0x04, 0xd0, 0x02, 0xea, 0xea]
+      end
       describe "assembles a line of assembly" do
         describe "reads a line of assembly" do
           describe "parses the pieces of a line of assembly" do
@@ -207,6 +215,10 @@ module R6502
           @mem.get_range(0x600, 0x602).should == [0x4c, 0xff, 0xff]
           @asm.deferred.should == {0x601 => 'cleanup'}
           @asm.pc.should == 0x603
+        end
+        it "processes relative-addressing labels" do
+          @asm.process_line('beq loop')
+          @mem.get_range(0x600, 0x602).should == [0xf0, 0xff, 0x00]
         end
       end
     end

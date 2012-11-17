@@ -105,7 +105,7 @@ module R6502
         # Store a dummy value and record this location
         # to be updated in 2nd pass.
         defer_value(@pc + 1, param)
-        number = 0xffff
+        number = mode == :rel ? 0xff : 0xffff
       end
 
       # These instructions take 1 byte.
@@ -179,11 +179,22 @@ module R6502
       # Goes through the saved locations (filled with dummy
       # values) and writes the real values.
       @deferred.keys.each do |addr|
-        both_bytes = label_get( @deferred[addr] )
-        low_byte = both_bytes & 0x00ff
-        high_byte = both_bytes >> 8
-        @memory.set( addr, low_byte )
-        @memory.set( addr+1, high_byte )
+        instr = @memory.get( addr - 1 )
+        # hopefully temporary quickfix
+        if [0x10, 0x30, 0x50, 0x70,
+            0x90, 0xb0, 0xd0, 0xf0].include?(instr)
+          to_addr = label_get( @deferred[addr] )
+          delta = to_addr - addr - 1
+          raise 'bad rel address' unless (-128..127).include? delta
+          value = delta < 0 ? 256 + delta : delta
+          @memory.set( addr, value )
+        else
+          both_bytes = label_get( @deferred[addr] )
+          low_byte = both_bytes & 0x00ff
+          high_byte = both_bytes >> 8
+          @memory.set( addr, low_byte )
+          @memory.set( addr+1, high_byte )
+        end
       end
 
     end
