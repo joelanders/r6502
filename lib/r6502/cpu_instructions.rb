@@ -460,7 +460,7 @@ module R6502
       @n = (0x80&@a)>>7
       inc_pc_by_mode(mode)
     end
-    def brk()
+    def brk(arg, mode)
       @mem.set(0x0100 + @s, @pc>>8)
       @s -= 1
       @mem.set(0x0100 + @s, (0xff&@pc))
@@ -480,7 +480,7 @@ module R6502
       hi = @mem.get(0xffff)
       @pc = (hi<<8) + lo
     end
-    def rti
+    def rti( arg, mode )
       flags = @mem.get(0x0100 + @s + 1)
       @s += 1
 
@@ -506,7 +506,7 @@ module R6502
       @s -= 1
       @pc = arg
     end
-    def rts
+    def rts( arg, mode )
       hi = @mem.get(0x0100 + @s + 1)
       @s += 1
       lo = @mem.get(0x0100 + @s + 1)

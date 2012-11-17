@@ -827,7 +827,7 @@ module R6502
       @cpu.pc = 0xabcd
       @mem.set(0xfffe, 0x40)
       @mem.set(0xffff, 0x80)
-      @cpu.brk
+      @cpu.brk(nil, :imp)
       @cpu.pc.should == 0x8040
       @cpu.s.should == 0xfc
       @mem.get(0x01ff).should == 0xab
@@ -839,7 +839,7 @@ module R6502
       @mem.set(0x01fd, 0b10100001)
       @mem.set(0x01fe, 0x80)
       @mem.set(0x01ff, 0x40)
-      @cpu.rti
+      @cpu.rti(nil, :imp)
       @cpu.c.should == 1
       @cpu.n.should == 1
       @cpu.v.should == 0
@@ -1000,7 +1000,7 @@ module R6502
       @cpu.s = 0xfd
       @mem.set(0x01ff, 0xcd)
       @mem.set(0x01fe, 0xab)
-      @cpu.rts
+      @cpu.rts(nil, :imp)
       @cpu.pc.should == 0xabce
     end
     it "lda" do
