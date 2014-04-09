@@ -23,3 +23,5 @@ for the code goes to him.
 
 I'm using the JS code as reference, but probably most of
 the internal structure will be quite different.
+
+MIT Licensed
