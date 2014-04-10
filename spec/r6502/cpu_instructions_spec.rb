@@ -1142,6 +1142,7 @@ module R6502
       @cpu.s = 0xfe
       @cpu.plp(nil, :imp)
       @cpu.pc.should == 0x0101
+      @cpu.s.should == 0xff
 
       @cpu.c.should == 0
       @cpu.z.should == 1

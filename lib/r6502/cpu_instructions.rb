@@ -412,6 +412,7 @@ module R6502
       # bit 5
       @v = 0x1 & (val>>6)
       @n = 0x1 & (val>>7)
+      @s += 1
       inc_pc_by_mode(mode)
     end
     def sta(arg, mode)
