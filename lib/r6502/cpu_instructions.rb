@@ -330,14 +330,7 @@ module R6502
       inc_pc_by_mode(mode)
     end
     def jmp(arg, mode)
-      case mode
-      when :abs
-        @pc = arg
-      else #indirect
-        lsb = @mem.get( arg )
-        msb = @mem.get( arg + 1)
-        @pc = lsb + msb<<8
-      end
+      @pc = arg
     end
     def lda(arg, mode)
       case mode
