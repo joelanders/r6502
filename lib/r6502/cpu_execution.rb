@@ -30,6 +30,8 @@ module R6502
       case mode
       when :imp
           nil
+      when :acc
+          nil
       when :imm
         sec_word
       when :zp
