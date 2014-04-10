@@ -58,7 +58,7 @@ module R6502
         lb = @mem.get( 0xff & sec_word )
         hb = @mem.get( 0xff & sec_word + 1)
         addr = (hb<<8) + lb
-        @mem.get( addr + @y )
+        addr + @y
       end
     end
     def inc_pc_by_mode(mode)

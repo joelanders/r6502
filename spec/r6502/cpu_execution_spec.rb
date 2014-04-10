@@ -69,7 +69,7 @@ module R6502
       @cpu.mem.set( 0x10, 0xa0 )
       @cpu.mem.set( 0x11, 0xb0 )
       @cpu.mem.set( 0xb0a4, 0xcd )
-      @cpu.decode_arg(:indy, 0x10, 0x66).should == 0xcd
+      @cpu.decode_arg(:indy, 0x10, 0x66).should == 0xb0a4
     end
     it "executes a single instr. from PC value and mem" do
       @cpu.pc = 0x2000
