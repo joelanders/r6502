@@ -983,10 +983,8 @@ module R6502
       @cpu.pc.should == 0x2000
 
       @cpu.pc = 0x1000
-      @mem.set( 0x2000, 0x00 )
-      @mem.set( 0x2001, 0x11 )
       @cpu.jmp(0x2000, :ind)
-      @cpu.pc.should == 0x1100
+      @cpu.pc.should == 0x2000
     end
     it "jsr" do
       @cpu.s = 0xff
