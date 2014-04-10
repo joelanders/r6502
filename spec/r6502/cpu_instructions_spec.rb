@@ -1125,7 +1125,7 @@ module R6502
       @cpu.s = 0xfe
       @cpu.php(nil, :imp)
       @cpu.s.should == 0xfd
-      @mem.get( 0x01fe ).should == 0b01101010
+      @mem.get( 0x01fe ).should == 0b01111010
     end
     it "plp" do
       @cpu.c = 1

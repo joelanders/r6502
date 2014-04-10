@@ -390,8 +390,8 @@ module R6502
       addr = 0x0100 + (0xff & @s)
       val =            @n #bit 7
       val = (val<<1) + @v #bit 6
-      val = (val<<1) +  1 #bit 5
-      val = (val<<1) + @b #bit 4
+      val = (val<<1) +  1 #bit 5, reserved
+      val = (val<<1) +  1 #bit 4, break
       val = (val<<1) + @d #bit 3
       val = (val<<1) + @i #bit 2
       val = (val<<1) + @z #bit 1
