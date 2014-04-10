@@ -501,16 +501,16 @@ module R6502
       @pc = 0xffff&((hi<<8) + lo)
     end
     def jsr( arg, mode )
-      @mem.set(0x0100 + @s, @pc>>8)
+      @mem.set(0x0100 + @s, (@pc+2)>>8)
       @s -= 1
-      @mem.set(0x0100 + @s, (0xff&@pc) + 2)
+      @mem.set(0x0100 + @s, 0xff&(@pc+2))
       @s -= 1
       @pc = arg
     end
     def rts( arg, mode )
-      hi = @mem.get(0x0100 + @s + 1)
-      @s += 1
       lo = @mem.get(0x0100 + @s + 1)
+      @s += 1
+      hi = @mem.get(0x0100 + @s + 1)
       @s += 1
       @pc = 0xffff&((hi<<8) + lo + 1)
     end
