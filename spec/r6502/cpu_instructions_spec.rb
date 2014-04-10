@@ -995,11 +995,18 @@ module R6502
       @mem.get(0x01ff).should == 0x06
       @mem.get(0x01fe).should == 0x02
       @cpu.pc.should == 0x1000
+
+      @cpu.s = 0xff
+      @cpu.pc = 0x06ff
+      @cpu.jsr(0x1000, :abs)
+      @mem.get(0x01ff).should == 0x07
+      @mem.get(0x01fe).should == 0x01
+      @cpu.pc.should == 0x1000
     end
     it "rts" do
       @cpu.s = 0xfd
-      @mem.set(0x01ff, 0xcd)
-      @mem.set(0x01fe, 0xab)
+      @mem.set(0x01ff, 0xab)
+      @mem.set(0x01fe, 0xcd)
       @cpu.rts(nil, :imp)
       @cpu.pc.should == 0xabce
     end
