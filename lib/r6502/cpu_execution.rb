@@ -1,4 +1,5 @@
 module R6502
+  DEBUG = true
   class Cpu
     attr_accessor :mem, :pc, :s, :x, :y, :a
     attr_accessor :c, :z, :i, :d, :b, :v, :n
@@ -21,10 +22,14 @@ module R6502
       instr, mode = instr_mode( mem.get(pc) )
       arg = decode_arg( mode, mem.get(pc+1), mem.get(pc+2) )
 
-      puts "instr: #{instr} at pc 0x#{pc.to_s(16)} with arg #{arg.to_i.to_s(16)}"
+      if DEBUG
+        puts "instr: #{instr} at pc 0x#{pc.to_s(16)} with arg #{arg.to_i.to_s(16)}"
+      end
       method( instr ).call( arg, mode )
-      puts " a: #{a.to_s(16)} x: #{x.to_s(16)} y: #{y.to_s(16)} z: #{z.to_s(16)} n: #{n.to_s(16)} c: #{c.to_s(16)}"
-      puts "==="
+      if DEBUG
+        puts " a: #{a.to_s(16)} x: #{x.to_s(16)} y: #{y.to_s(16)} z: #{z.to_s(16)} n: #{n.to_s(16)} c: #{c.to_s(16)}"
+        puts "==="
+      end
     end
     def decode_arg(mode, sec_word, thd_word)
       case mode
