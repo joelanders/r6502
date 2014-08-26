@@ -1,5 +1,5 @@
 # Update: 9 April 2014
-At the [suggestion](https://github.com/joelanders/r6502/issues/1) of Mike Nabreezy,
+At the [suggestion](https://github.com/joelanders/r6502/issues/1) of Ed Spittles,
 I've pulled in [some tests from Klaus Dormann](https://github.com/Klaus2m5/6502_65C02_functional_tests).
 Specifically, I've copied his `6502_functional_test`
 binary and listing to my `bin/` directory here.
